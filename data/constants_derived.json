@@ -80,9 +80,10 @@
       "qhots_value": 1.29347,
       "experimental_value": 1.29333,
       "experimental_source": "CODATA 2022",
-      "error_ppb": 0.257,
+      "error_ppb": 103400,
       "sqrt_n_basis": "81 = 3\u2074 (SU(3) hierarchy)",
-      "status": "verified"
+      "status": "verified",
+      "note": "Simple form at 103 ppm; full Eisenstein formula (71/28 - 2\u03b1/\u03c0 + c\u2082(\u03b1/\u03c0)\u00b2) achieves 0.257 ppb"
     },
     {
       "name": "kappa_phi_ratio",

@@ -72,7 +72,7 @@ Each major φ-power decomposes into a √n base plus a small correction:
 | φ³ | √18 − 0.0066 | 0.16% | Immirzi parameter |
 | **φ⁷** | **29 + 1/φ⁷** | **Exact** | **Dark sector** |
 
-The φ⁷ identity is exact via Lucas number: φ⁷ + φ⁻⁷ = L₇ = 29.
+The φ⁷ identity is exact via Lucas number: φ⁷ − φ⁻⁷ = L₇ = 29 (equivalently, φ⁷ = 29 + φ⁻⁷).
 
 ---
 
