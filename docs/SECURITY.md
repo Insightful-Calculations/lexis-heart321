@@ -5,7 +5,7 @@
 If you discover a security vulnerability in any code or system associated with this project, please report it responsibly:
 
 1. **Do NOT open a public issue**
-2. Email: [PLACEHOLDER_EMAIL]
+2. Email: insightfulcalculations@gmail.com
 3. Include: description, reproduction steps, potential impact
 
 We aim to acknowledge reports within 48 hours.
