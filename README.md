@@ -2,7 +2,7 @@
 
 ### Qameah/Quantum Harmonic Oscillator Theory of Spacetime
 
-[![DOI](https://zenodo.org/badge/DOI/PLACEHOLDER.svg)](https://doi.org/PLACEHOLDER)
+[![DOI](https://zenodo.org/badge/1160449682.svg)](https://doi.org/10.5281/zenodo.18676606)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
@@ -48,7 +48,17 @@ See `data/` for:
 If you use this research, please cite:
 
 ```bibtex
-PLACEHOLDER_BIBTEX
+@article{Reynisson2026,
+  author    = {Reynisson, Hr\'{o}ar \TH\'{o}r},
+  title     = {{QHOTS}: The Geometric Completion ---
+               Unified $\sqrt{n}$ Framework for Fundamental Physics},
+  year      = {2026},
+  month     = feb,
+  publisher = {Zenodo},
+  version   = {62},
+  doi       = {10.5281/zenodo.18676607},
+  url       = {https://doi.org/10.5281/zenodo.18676607}
+}
 ```
 
 Or use the "Cite this repository" button provided by GitHub.
