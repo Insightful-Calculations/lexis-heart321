@@ -1,0 +1,32 @@
+{
+  "title": "QHOTS: The Geometric Completion \u2014 Unified \u221an Framework for Fundamental Physics",
+  "description": "A unified geometric framework deriving fundamental physical constants from lattice bases (\u221an) plus QED corrections weighted by topological factors. Crown jewels: m_p/m_e (0.015 ppb), G (1.3 ppm), \u03b1 = 28/3837 (2.08 ppm). 32 derived results, 54 falsifiable predictions, 0 free parameters.",
+  "creators": [
+    {
+      "name": "Reynisson, Hr\u00f3ar \u00de\u00f3r",
+      "affiliation": "Technological Institute of Iceland (IceTec)"
+    }
+  ],
+  "upload_type": "publication",
+  "access_right": "open",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "theoretical physics",
+    "E8 geometry",
+    "fundamental constants",
+    "fine structure constant",
+    "proton-electron mass ratio",
+    "geometric physics",
+    "golden ratio",
+    "Milnor exotic spheres",
+    "Eisenstein lattice",
+    "quantum gravity",
+    "dark sector",
+    "QHOTS",
+    "open science"
+  ],
+  "related_identifiers": [],
+  "language": "eng",
+  "version": "62",
+  "publication_type": "article"
+}

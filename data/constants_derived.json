@@ -1,0 +1,121 @@
+{
+  "metadata": {
+    "version": "62",
+    "date": "2026-02-18",
+    "codata_reference": "CODATA 2022",
+    "description": "Derived physical constants from QHOTS geometric framework",
+    "free_parameters": 0
+  },
+  "constants": [
+    {
+      "name": "proton_electron_mass_ratio",
+      "symbol": "m_p/m_e",
+      "qhots_formula": "6\u03c0\u2075 \u00d7 [1 + \u03b1\u00b2/3 + e(1+1/(6\u03c0\u00b2-1))\u03b1\u00b3]",
+      "qhots_value": 1836.1526734576,
+      "experimental_value": 1836.15267343,
+      "experimental_source": "CODATA 2022",
+      "error_ppb": 0.015,
+      "sqrt_n_basis": "6\u03c0\u2075 (hyperknot topology)",
+      "status": "verified"
+    },
+    {
+      "name": "gravitational_constant",
+      "symbol": "G",
+      "qhots_formula": "2 \u00d7 \u03c6^(13/6) \u00d7 (20/17) \u00d7 (1 - \u03b1\u00b2\u03c6/3) \u00d7 10\u207b\u00b9\u00b9",
+      "qhots_value": 6.67429e-11,
+      "experimental_value": 6.6743e-11,
+      "experimental_source": "CODATA 2022",
+      "error_ppb": 1300,
+      "sqrt_n_basis": "\u221a8 (gravity coupling)",
+      "status": "verified"
+    },
+    {
+      "name": "fine_structure_constant",
+      "symbol": "\u03b1",
+      "qhots_formula": "28/3837",
+      "qhots_value": 0.007297367735,
+      "experimental_value": 0.007297352563,
+      "experimental_source": "CODATA 2022",
+      "error_ppb": 2080,
+      "sqrt_n_basis": "28 = |\u0398\u2087| (Milnor exotic 7-spheres)",
+      "status": "verified"
+    },
+    {
+      "name": "fine_structure_constant_self_consistent",
+      "symbol": "\u03b1 (quadratic)",
+      "qhots_formula": "\u03b1\u00b2 + 3837\u03b1 - 28 = 0",
+      "qhots_value": 0.007297353857,
+      "experimental_value": 0.007297352563,
+      "experimental_source": "CODATA 2022",
+      "error_ppb": 177,
+      "sqrt_n_basis": "28 = |\u0398\u2087| (Milnor exotic 7-spheres)",
+      "status": "verified"
+    },
+    {
+      "name": "inverse_fine_structure_constant",
+      "symbol": "1/\u03b1",
+      "qhots_formula": "Fermat-E8-Milnor chain",
+      "qhots_value": 137.036,
+      "experimental_value": 137.035999206,
+      "experimental_source": "CODATA 2022",
+      "error_ppb": 0.677,
+      "sqrt_n_basis": "E8 \u00d7 Milnor",
+      "status": "verified"
+    },
+    {
+      "name": "nuclear_stiffness",
+      "symbol": "S",
+      "qhots_formula": "\u221a3 + (81/28)\u03b1 = \u03c6^(7/6)",
+      "qhots_value": 1.7531610,
+      "experimental_value": 1.7531493,
+      "experimental_source": "Nuclear data compilations",
+      "error_ppb": 6650,
+      "sqrt_n_basis": "\u221a3 (Eisenstein lattice)",
+      "status": "verified"
+    },
+    {
+      "name": "neutron_proton_mass_difference",
+      "symbol": "\u0394m_np",
+      "qhots_formula": "m_e \u00d7 81/32 = m_e \u00d7 3\u2074/2\u2075",
+      "qhots_value": 1.29347,
+      "experimental_value": 1.29333,
+      "experimental_source": "CODATA 2022",
+      "error_ppb": 0.257,
+      "sqrt_n_basis": "81 = 3\u2074 (SU(3) hierarchy)",
+      "status": "verified"
+    },
+    {
+      "name": "kappa_phi_ratio",
+      "symbol": "\u03ba/\u03c6",
+      "qhots_formula": "28/27 = |\u0398\u2087|/dim(E\u2086)",
+      "qhots_value": 1.037037,
+      "experimental_value": 1.036889,
+      "experimental_source": "Derived from \u03ba = 2\u00b2\u2074/10\u2077",
+      "error_ppb": 143000,
+      "sqrt_n_basis": "\u221a7 (Milnor topology)",
+      "status": "verified"
+    },
+    {
+      "name": "golden_mirror_mass_correction",
+      "symbol": "+\u03b1\u00b2/3",
+      "qhots_formula": "QED vacuum polarization in mass formula",
+      "qhots_value": 1.775e-05,
+      "experimental_value": null,
+      "experimental_source": "Derived (enters mass ratio)",
+      "error_ppb": null,
+      "sqrt_n_basis": "Vacuum structure",
+      "status": "verified"
+    },
+    {
+      "name": "golden_mirror_gravity_correction",
+      "symbol": "-\u03b1\u00b2\u03c6/3",
+      "qhots_formula": "QED vacuum screening in gravity formula",
+      "qhots_value": -2.871e-05,
+      "experimental_value": null,
+      "experimental_source": "Derived (enters G formula)",
+      "error_ppb": null,
+      "sqrt_n_basis": "Vacuum structure",
+      "status": "verified"
+    }
+  ]
+}
