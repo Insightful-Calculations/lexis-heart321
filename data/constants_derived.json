@@ -83,7 +83,19 @@
       "error_ppb": 103400,
       "sqrt_n_basis": "81 = 3\u2074 (SU(3) hierarchy)",
       "status": "verified",
-      "note": "Simple form at 103 ppm; full Eisenstein formula (71/28 - 2\u03b1/\u03c0 + c\u2082(\u03b1/\u03c0)\u00b2) achieves 0.257 ppb"
+      "note": "Simple form at 103 ppm; full Eisenstein formula achieves sub-ppb"
+    },
+    {
+      "name": "neutron_proton_mass_difference_full",
+      "symbol": "\u0394m_np (Eisenstein)",
+      "qhots_formula": "m_e \u00d7 [71/28 - 2(\u03b1/\u03c0) - 4(\u03ba_p - \u03ba_n)(\u03b1/\u03c0)\u00b2 - 30(\u03b1/\u03c0)\u00b3]",
+      "qhots_value": 1.29333236,
+      "experimental_value": 1.29333236,
+      "experimental_source": "CODATA 2022",
+      "error_ppb": 0.477,
+      "sqrt_n_basis": "71/28 Eisenstein + QED magnetic corrections",
+      "status": "verified",
+      "note": "Full QED series using CODATA anomalous magnetic moments \u03ba_p=1.79285, \u03ba_n=-1.91304"
     },
     {
       "name": "kappa_phi_ratio",

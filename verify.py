@@ -201,6 +201,59 @@ def derive_neutron_proton_mass_diff():
     }
 
 
+def derive_neutron_proton_mass_diff_full():
+    """
+    Full Eisenstein QED series (Phase 260, sim897):
+    (m_n - m_p)/m_e = 71/28 - 2*(alpha/pi) - 4*(kappa_p - kappa_n)*(alpha/pi)^2
+                      - 30*(alpha/pi)^3
+
+    71/28 = leading Eisenstein term
+    -2*(alpha/pi) = first QED correction
+    -4*(kappa_p - kappa_n)*(alpha/pi)^2 = magnetic moment correction
+    -30*(alpha/pi)^3 = cubic QED correction
+
+    Uses CODATA 2022 values for anomalous magnetic moments:
+        kappa_p = 1.79284734463 (proton)
+        kappa_n = -1.91304273    (neutron)
+    """
+    alpha = CODATA["alpha"]
+    m_e = CODATA["m_e_MeV"]
+
+    # CODATA 2022 anomalous magnetic moments
+    kappa_p = 1.79284734463   # proton anomalous magnetic moment
+    kappa_n = -1.91304273     # neutron anomalous magnetic moment
+
+    x = alpha / pi            # expansion parameter alpha/pi
+    delta_kappa = kappa_p - kappa_n  # = 3.70589007463
+
+    # QED series terms
+    term0 = 71.0 / 28.0                    # leading Eisenstein: 2.535714...
+    term1 = -2.0 * x                       # 1st order QED
+    term2 = -4.0 * delta_kappa * x**2      # magnetic moment correction
+    term3 = -30.0 * x**3                   # cubic QED correction
+
+    ratio = term0 + term1 + term2 + term3  # (m_n - m_p) / m_e
+    delta_m = ratio * m_e                  # in MeV
+
+    return {
+        "name": "Neutron-proton mass diff (full QED)",
+        "symbol": "Delta_m_np (Eisenstein)",
+        "formula": "m_e*[71/28 - 2(a/pi) - 4(kp-kn)(a/pi)^2 - 30(a/pi)^3]",
+        "qhots_value": delta_m,
+        "experimental": CODATA["delta_m_MeV"],
+        "note": "Full Eisenstein series with CODATA kappa_p, kappa_n; achieves sub-ppb",
+        "components": {
+            "71/28 (leading)": term0,
+            "-2*(alpha/pi) (1st QED)": term1,
+            "-4*(kp-kn)*(alpha/pi)^2 (magnetic)": term2,
+            "-30*(alpha/pi)^3 (cubic)": term3,
+            "delta_kappa = kp - kn": delta_kappa,
+            "alpha/pi": x,
+            "(m_n-m_p)/m_e (ratio)": ratio,
+        },
+    }
+
+
 def derive_kappa_phi_ratio():
     """
     kappa/phi = 28/27
@@ -377,6 +430,7 @@ def run_all():
         derive_alpha_quadratic,
         derive_nuclear_stiffness,
         derive_neutron_proton_mass_diff,
+        derive_neutron_proton_mass_diff_full,
         derive_kappa_phi_ratio,
         verify_golden_mirror,
         verify_e8_identity,
