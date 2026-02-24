@@ -31,12 +31,10 @@ The current paper is in `paper/QHOTS_v67.pdf`. LaTeX source is in `paper/QHOTS_v
 
 ## CS Papers
 
-Two companion papers on AI methodology are available in `cs-papers/`:
+Two companion papers on AI methodology, each in their own repository for independent DOI registration:
 
-- **[The Identity Sum](cs-papers/identity-sum/)** — Thought containment, error correction, and the NaN/Inf duality in large language models. *Reynisson & Claude (Anthropic).*
-- **[Autonomous Research Loops](cs-papers/autonomous-research-loops/)** — A self-sustaining architecture for continuous scientific discovery. *Reynisson & Claude (Anthropic).*
-
-Each folder contains LaTeX source, compiled PDF, and a CITATION.cff for DOI registration.
+- **[The Identity Sum](https://github.com/Insightful-Calculations/identity-sum)** — Thought containment, error correction, and the NaN/Inf duality in large language models. *Reynisson & Claude (Anthropic).* Also available locally in `cs-papers/identity-sum/`.
+- **[Autonomous Research Loops](https://github.com/Insightful-Calculations/autonomous-research-loops)** — A self-sustaining architecture for continuous scientific discovery. *Reynisson & Claude (Anthropic).* Also available locally in `cs-papers/autonomous-research-loops/`.
 
 ## Supplementary Materials
 
