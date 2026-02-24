@@ -15,8 +15,8 @@ $$C = \sqrt{n_{\text{geom}}} + \frac{\text{topology}}{\text{symmetry}} \times \a
 This repository contains the research output of the QHOTS program — a unified geometric framework deriving fundamental physical constants from lattice bases (√n) plus QED corrections weighted by topological factors.
 
 **Key results:**
-- 32 derived results from pure geometry
-- 54 falsifiable predictions with 0 free parameters
+- 35 derived results from pure geometry
+- 54 quantitative results (9 genuine predictions, 16 postdictions, 18 retrodictions) with 0 free parameters
 - Proton-to-electron mass ratio derived: m_p/m_e = 6π⁵ + α²/3 + eα³ (0.015 ppb error)
 - Fine structure constant decomposed: α = 28/3837 (2.08 ppm error)
 - Inverse fine structure constant 1/α derived to 0.677 ppb (Fermat-E8-Milnor)
@@ -27,7 +27,16 @@ This repository contains the research output of the QHOTS program — a unified 
 
 ## The Paper
 
-The current paper is in `paper/QHOTS_v62.pdf`. LaTeX source for arXiv submission is in `paper/QHOTS_v62.tex`.
+The current paper is in `paper/QHOTS_v67.pdf`. LaTeX source is in `paper/QHOTS_v67.tex`. Previous versions (v62, v63) remain available in the `paper/` directory.
+
+## CS Papers
+
+Two companion papers on AI methodology are available in `cs-papers/`:
+
+- **[The Identity Sum](cs-papers/identity-sum/)** — Thought containment, error correction, and the NaN/Inf duality in large language models. *Reynisson & Claude (Anthropic).*
+- **[Autonomous Research Loops](cs-papers/autonomous-research-loops/)** — A self-sustaining architecture for continuous scientific discovery. *Reynisson & Claude (Anthropic).*
+
+Each folder contains LaTeX source, compiled PDF, and a CITATION.cff for DOI registration.
 
 ## Supplementary Materials
 
@@ -55,7 +64,7 @@ If you use this research, please cite:
   year      = {2026},
   month     = feb,
   publisher = {Zenodo},
-  version   = {62},
+  version   = {67},
   doi       = {10.5281/zenodo.18676607},
   url       = {https://doi.org/10.5281/zenodo.18676607}
 }

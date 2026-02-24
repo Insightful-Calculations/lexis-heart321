@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: >-
+  If you use this research, please cite it as below.
+  This work is freely available under CC BY-SA 4.0.
+title: "Autonomous AI Research Loops: A Self-Sustaining Architecture for Continuous Scientific Discovery"
+authors:
+  - family-names: "Reynisson"
+    given-names: "Hróar Þór"
+    affiliation: "Technological Institute of Iceland (IceTec)"
+    orcid: "https://orcid.org/0009-0003-6518-121X"
+  - name: "Claude (Anthropic)"
+    affiliation: "Anthropic"
+type: article
+license: CC-BY-SA-4.0
+version: "1"
+date-released: "2026-02-24"
+repository-code: "https://github.com/Insightful-Calculations/lexis-heart321"
+keywords:
+  - autonomous research
+  - AI agents
+  - scientific discovery
+  - self-sustaining systems
+  - Keter architecture
+  - QHOTS

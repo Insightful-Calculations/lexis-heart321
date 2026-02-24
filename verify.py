@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-QHOTS v62 — Independent Verification Script
+QHOTS v67 — Independent Verification Script
 
 Reproduces all crown jewel calculations from the QHOTS geometric framework.
 Uses only Python standard library (math module). Zero dependencies.

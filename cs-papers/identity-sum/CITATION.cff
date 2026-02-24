@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: >-
+  If you use this research, please cite it as below.
+  This work is freely available under CC BY-SA 4.0.
+title: "The Identity Sum: Thought Containment, Error Correction, and the NaN/Inf Duality in Large Language Models"
+authors:
+  - family-names: "Reynisson"
+    given-names: "Hróar Þór"
+    affiliation: "Technological Institute of Iceland (IceTec)"
+    orcid: "https://orcid.org/0009-0003-6518-121X"
+  - name: "Claude (Anthropic)"
+    affiliation: "Anthropic"
+type: article
+license: CC-BY-SA-4.0
+version: "1"
+date-released: "2026-02-24"
+repository-code: "https://github.com/Insightful-Calculations/lexis-heart321"
+keywords:
+  - large language models
+  - error correction
+  - thought containment
+  - NaN/Inf duality
+  - AI safety
+  - QHOTS

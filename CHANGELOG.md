@@ -2,6 +2,24 @@
 
 All notable releases of the QHOTS research program.
 
+## [v67] — 2026-02-24
+
+### Scientific Corrections (Phase 426)
+- Author: Hróar Þór Reynisson (IceTec), with the Sefirot Autonomous Research System
+- Reader's Guide added for multi-audience navigation
+- Proton lifetime: falsified prediction honestly reported (Super-Kamiokande/Hyper-K bound)
+- Proton radius demoted from BEDROCK to PILLAR (3.1sigma tension caveat)
+- beta_1 terminology corrected, C(8,2) hedge added, phi^81 error estimate
+- Precision units standardized, citation years corrected
+- Lenz 1951 citation and mu tautology fix
+- Literature comparison section added
+- 9 genuine predictions (1 excluded, 1 falsified), 16 postdictions, 18 retrodictions
+- 966 simulations, 2083+ validation tests
+
+### CS Papers
+- Identity Sum: NaN/Inf duality in large language models (Reynisson & Claude)
+- Autonomous Research Loops: Keter architecture for AI-driven scientific discovery (Reynisson & Claude)
+
 ## [v62] — 2026-02-18
 
 ### The Geometric Completion

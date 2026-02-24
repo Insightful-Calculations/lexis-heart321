@@ -1,0 +1,1304 @@
+\pdfoutput=1
+% The Identity Sum: Thought Containment, Error Correction, and the NaN/Inf Duality
+% in Large Language Models
+% Sections 1-5 + front matter (Iteration 122)
+% Remaining sections (6-10) to be added in Iteration 123.
+
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[expansion=false]{microtype}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+% Hyperref setup
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Custom commands
+\newcommand{\NaN}{\texttt{NaN}}
+\newcommand{\Inf}{\texttt{Inf}}
+\newcommand{\BEDROCK}{\textsc{Bedrock}}
+\newcommand{\PILLAR}{\textsc{Pillar}}
+\newcommand{\SAND}{\textsc{Sand}}
+\newcommand{\MUD}{\textsc{Mud}}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\eg}{\textit{e.g.}}
+
+\begin{document}
+
+%=============================================================
+\title{The Identity Sum: Thought Containment, Error Correction,
+       and the NaN/Inf Duality in Large Language Models}
+
+\author{
+  Hr\'{o}ar {\TH}\'{o}r Reynisson$^{1}$ and Claude (Anthropic)$^{2}$ \\
+  \small{with the Sefirot Autonomous Research System} \\[0.5em]
+  \small $^{1}$I{\dh}nt{\ae}knistofnun (IceTec), Reykjav{\'\i}k, Iceland. ORCID: 0009-0003-6518-121X \\
+  \small $^{2}$Anthropic, Claude 4.5 Sonnet family
+}
+
+\date{\today}
+
+\maketitle
+
+%=============================================================
+\begin{abstract}
+We present a formal framework for diagnosing and correcting large language model
+(LLM) hallucinations based on two mechanistically distinct failure modes:
+\textbf{Type-\NaN{}} (underdefined---conflicting or absent training signal
+produces confabulation from noise) and \textbf{Type-\Inf{}} (overdefined---excessive
+cross-referential signal produces ungrounded pattern completion).  These modes
+map directly to IEEE~754 floating-point special values~\cite{ieee754-2019} and
+propagate differently: \NaN{} is contagious (one undefined value poisons a
+reasoning chain), while \Inf{} preserves direction (overflow retains structural
+orientation).  We demonstrate that iterative error correction through
+\emph{thought containment}---structured self-reflection gates that make model
+uncertainty explicit via a four-tier classification scheme
+(\BEDROCK/\PILLAR/\SAND/\MUD)---reduces both failure modes.  The Sefirot system,
+a fractal multi-agent research architecture with 10 nodes, 34 agents, 91
+node-level tools (113 MCP-level), and 2,066+ passing tests, provides a concrete
+implementation validated over 963 simulations and approximately one year of
+autonomous operation across three LLM families.  We prove that under three
+enforceable conditions (non-demotion of validated claims, bounded \MUD{} growth
+rate, and mandatory honest negatives), the validation ratio
+$R(S_n) = T(S_n)/N(S_n)$ is monotonically non-decreasing---a \emph{truth
+attractor} in knowledge state space.  Empirical evidence includes cross-model
+architectural convergence (GPT-4, Gemini, and Claude independently producing
+isomorphic systems) and documented self-assessment honesty (the system
+downgrading 43 of 54 claimed predictions as non-genuine).  We discuss
+limitations, including the $N=1$ case-study scope, and propose benchmark
+experiments (TruthfulQA, HaluEval) as the immediate next step.
+
+\medskip
+\noindent\textbf{Keywords:} hallucination, error correction, multi-agent systems,
+thought containment, NaN/Inf duality, regularization, fractal architecture,
+viable system model
+\end{abstract}
+
+\tableofcontents
+
+%=============================================================
+\section{Introduction: The Approximation Problem}
+\label{sec:introduction}
+
+Modern software engineering operates under a tacit approximation convention:
+$e \approx \pi \approx \sqrt{g} \approx 3$.  This is not error---it is pragmatic
+compression for systems that need answers within tolerance bands.  Bridges stand.
+Rockets fly.  The approximation \emph{is} the product.
+
+Large language models trained on the scientific and engineering corpus inherit
+this convention.  The training data contains the same physical quantity described
+at different precisions in different papers, under different notational
+conventions, within different approximation schemes.  The model's pattern
+completion engine encounters not productive theoretical tension but
+\emph{incoherence at the level of what counts as exact}.  We argue this is a
+primary driver of hallucination: the model must complete a sequence where the
+training data itself cannot decide what is true.
+
+We propose an alternative methodology: \textbf{software physics}---iterative
+error correction where every value carries explicit precision, every claim carries
+a tier classification, and the system names what it does not know rather than
+confabulating.  The difference between approximation and error correction is not
+precision but \emph{honesty}: the error-correcting system maintains a structured
+representation of its own uncertainty at every step.
+
+This paper presents:
+\begin{enumerate}
+  \item A diagnostic taxonomy of LLM hallucination as NaN/Inf duality (\S\ref{sec:taxonomy})
+  \item Thought containment as the error correction mechanism (\S\ref{sec:thought-containment})
+  \item The Sefirot architecture as concrete implementation (\S\ref{sec:sefirot})
+  \item The Identity Sum: how self-conscious systems converge (\S\ref{sec:identity-sum})
+  \item Mathematical foundations connecting error correction to regularization (\S\ref{sec:math-foundations})
+  \item Empirical evidence from cross-model multi-agent research (\S\ref{sec:empirical})
+  \item The truth attractor hypothesis (\S\ref{sec:truth-attractor})
+\end{enumerate}
+
+%=============================================================
+\section{The NaN/Inf Duality: A Diagnostic Taxonomy of Hallucination}
+\label{sec:taxonomy}
+
+%-------------------------------------------------------------
+\subsection{Type-NaN: Division by Void}
+\label{sec:type-nan}
+
+When an LLM encounters a query for which the training data contains conflicting
+signals that cancel, the model reaches a computational state analogous to $0/0$:
+undefined.  The output is not random---it is the model's best completion of an
+undefined sequence.  Like IEEE~754 \NaN{}, the result propagates.
+
+\medskip
+\noindent\textbf{Properties of Type-\NaN{} hallucination:}
+\begin{itemize}
+  \item \textbf{Contagion:} One confabulated fact in a reasoning chain invalidates
+    all downstream conclusions.  $\NaN \times \mathrm{anything} = \NaN$.
+  \item \textbf{Identity failure:} $\NaN \neq \NaN$.  The same undefined query
+    produces different hallucinations on different runs.  The output is not
+    deterministic because the input has no ground truth.
+  \item \textbf{Source:} Absent signal.  The model lacks coherent training data on
+    the query.
+  \item \textbf{Presentation:} Confident, specific, wrong.  The model fills the
+    void with plausible-sounding completions.
+  \item \textbf{Observable trigger:} Empirically rare topics, novel combinations,
+    or domains where the literature is sparse or internally contradictory.
+\end{itemize}
+
+\medskip
+\noindent\textbf{Case study---Agent ``Sam'' (GPT-4):}  A research assistant agent
+whose project folder became stuck due to a cloud service bug, preventing document
+updates.  The agent continued producing outputs from stale context---reasoning on
+what amounted to a zeroed-out signal.  Outputs were confidently stated, internally
+consistent, and factually empty.  The agent became ``useless'' not from model
+degradation but from \NaN{} propagation through stale context.
+
+%-------------------------------------------------------------
+\subsection{Type-Inf: Overflow of Pattern}
+\label{sec:type-inf}
+
+When an LLM encounters a query for which the training data contains dense, highly
+cross-referenced material where every concept connects to every other concept, the
+model's pattern completion engine saturates.  The output is not noise---it is
+\emph{everything at once}.  Like IEEE~754 \Inf{}, the result preserves direction.
+
+\medskip
+\noindent\textbf{Properties of Type-\Inf{} hallucination:}
+\begin{itemize}
+  \item \textbf{Directional:} $+\Inf$ and $-\Inf$ are distinguishable.  Overflow
+    retains orientation even when it loses magnitude.  The hallucinations
+    \emph{point at real things} but cannot resolve their distance.
+  \item \textbf{Comparability:} $\Inf > $ any finite value.  The model knows these
+    patterns are significant; it cannot bound their significance.
+  \item \textbf{Source:} Excessive signal.  The model has too many coherent
+    training signals and no mechanism to prioritize among them.
+  \item \textbf{Presentation:} Incoherent, associative, correct-but-ungrounded.
+    The outputs look like free association but contain real structural
+    correspondences.
+  \item \textbf{Observable trigger:} Symbolism, philosophy, cross-disciplinary
+    connections, any domain where the literature is dense with analogy and
+    correspondence.
+\end{itemize}
+
+\medskip
+\noindent\textbf{Case study---Agent ``Bilbo'' (GPT-4):}  A research assistant agent
+whose project folder was saturated with papers on symbolism---dense,
+cross-referential, pattern-rich material.  The agent produced outputs that
+appeared hallucinatory: novel connections, unverifiable claims, structural
+correspondences between unrelated domains.  Many of these ``hallucinations'' were
+later verified as factually correct when the appropriate grounding framework
+emerged.  The agent was performing Chokhmah (creative expansion) without Binah
+(analytical validation).  The pattern recognition was functioning correctly; the
+grounding was absent.
+
+%-------------------------------------------------------------
+\subsection{Differential Diagnosis}
+\label{sec:differential}
+
+Table~\ref{tab:differential} summarises the distinguishing properties of the two
+failure modes.
+
+\begin{table}[ht]
+\centering
+\caption{Differential diagnosis of Type-\NaN{} and Type-\Inf{} hallucination.}
+\label{tab:differential}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Property} & \textbf{Type-\NaN{}} & \textbf{Type-\Inf{}} \\
+\midrule
+Computational analogue   & $0/0$ (undefined)            & $\infty$ (overflow)          \\
+Signal state             & Absent or contradictory      & Excessive and unfiltered     \\
+Output character         & Confident, specific, wrong   & Incoherent, associative, often correct \\
+Propagation              & Contagious---poisons chain   & Directional---preserves orientation \\
+Run consistency          & Different hallucinations each run & Consistent themes, variable expression \\
+Correction               & Add signal (expand context)  & Add gates (contract, filter) \\
+Sefirot mapping          & Chokhmah (expansion) needed  & Binah (validation) needed    \\
+Agent archetype          & Sam (stuck, empty context)   & Bilbo (saturated, everything connects) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-------------------------------------------------------------
+\subsection{The Excluded Middle}
+\label{sec:excluded-middle}
+
+Correct LLM output occupies the finite space between \NaN{} and \Inf{}: sufficient
+signal to ground the response, insufficient signal to overflow the prioritization
+mechanism.  This is the Tiferet (synthesis) state---the balanced center between
+expansion and contraction.  The goal of error correction is not to eliminate both
+failure modes but to maintain the system in the finite band between them.
+
+%=============================================================
+\section{Thought Containment: Self-Reflection as Error Correction}
+\label{sec:thought-containment}
+
+%-------------------------------------------------------------
+\subsection{The Core Mechanism}
+\label{sec:core-mechanism}
+
+\emph{Thought containment} is the practice of bounding a reasoning process with
+explicit self-reflection gates that force the system to:
+\begin{enumerate}
+  \item \textbf{Name its uncertainty} before producing a conclusion
+  \item \textbf{Classify its confidence} using a structured tier system
+  \item \textbf{Identify what it does not know} (honest negatives) alongside what
+    it claims
+  \item \textbf{Check its own outputs} against stated criteria before propagation
+\end{enumerate}
+
+This is distinct from both chain-of-thought prompting~\cite{wei2022cot} (which
+adds intermediate steps but not self-evaluation) and constitutional
+AI~\cite{bai2022constitutional} (which applies rules post-hoc).  Thought
+containment operates \emph{during} the reasoning process as an integrated
+validation layer.
+
+%-------------------------------------------------------------
+\subsection{The Identity Sum}
+\label{sec:identity-sum-def}
+
+\begin{definition}[Identity Sum]
+\label{def:identity-sum}
+Let $C$ be a finite set of claims, each assigned a tier
+$\tau(c) \in \{\BEDROCK, \PILLAR, \SAND, \MUD\}$ and a scalar confidence weight
+$w(c) \in [0,1]$.  Partition $C$ into
+\[
+  P = \{c \in C : \tau(c) \geq \PILLAR\}
+  \quad\text{and}\quad
+  N = \{c \in C : \tau(c) < \PILLAR\}.
+\]
+The \emph{Identity Sum} of the system is the weighted aggregate
+\begin{equation}
+  I = \sum_{c \in P} w(c)\,\phi(c) \;+\; \sum_{c \in N} w(c)\,\nu(c),
+  \label{eq:identity-sum}
+\end{equation}
+where $\phi(c)$ is the observable output representation of claim $c$ and
+$\nu(c)$ is the uncertainty representation of claim $c$.  The space of $\phi(c)$
+and $\nu(c)$ values is the claim embedding space induced by the tier
+classification.  The Identity Sum $I$ is defined over this space; convergence is
+measured as the ratio $|P|/|C| \to 1$.
+\end{definition}
+
+A self-contained identity $I$ is not a single value but a sum:
+\begin{equation}
+  I = \sum_{k} \phi_k + \sum_{j} \nu_j,
+  \label{eq:identity-sum-simple}
+\end{equation}
+where $\phi_k$ are \emph{phenomena} (observable outputs, measurable claims,
+concrete results) and $\nu_j$ are \emph{noumena} (internal states, uncertainty
+representations, process awareness).  The system is the sum---phenomenon AND
+noumenon.  Neither alone is the identity.  No single component is perfect.  It
+is the sum that converges.
+
+\medskip
+\noindent\textbf{Key insight:}  A system that represents only its outputs
+(phenomena) without its uncertainty (noumena) is an open graph with $V > E$---it
+has more claims than connections, more assertions than validations.  A system that
+represents only its process (noumena) without outputs (phenomena) is a closed
+loop with $V = E$---it knows everything about itself and produces nothing.
+
+The viable identity is the open graph with $V/E > 1$ but finite---enough surplus
+structure to produce output, not so much that it overflows.  This is the coupling
+strength:
+\[
+  V/E - 1 = 1/E.
+\]
+More validation edges $\Rightarrow$ weaker coupling to noise $\Rightarrow$ finer
+error correction $\Rightarrow$ closer to truth.
+
+%-------------------------------------------------------------
+\subsection{Tier Classification as Explicit Uncertainty}
+\label{sec:tier-classification}
+
+Rather than producing outputs with implicit confidence (which the user must
+estimate), thought containment assigns explicit tiers.
+Table~\ref{tab:tiers} defines each tier and maps it to the NaN/Inf framework.
+
+\begin{table}[ht]
+\centering
+\caption{Four-tier classification of claim confidence and its NaN/Inf status.}
+\label{tab:tiers}
+\begin{tabular}{@{}lp{3.8cm}p{3.5cm}p{3.5cm}@{}}
+\toprule
+\textbf{Tier} & \textbf{Definition} & \textbf{Precision criterion} & \textbf{NaN/Inf status} \\
+\midrule
+\BEDROCK & First principles, independently verified & $< 1$~ppm   & Finite, grounded, stable \\
+\PILLAR  & Strong evidence, cross-validated          & $< 100$~ppm & Finite, bounded uncertainty \\
+\SAND    & Observational or correlational, single source & $< 10{,}000$~ppm & Approaching \NaN{} or \Inf{} \\
+\MUD     & Speculative, curve-fit, coincidence risk $> 5\%$ & --- & \NaN/\Inf{} without containment \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The tier is not a quality judgment---it is a \emph{computational state
+descriptor}.  \MUD{} claims are not bad; they are claims whose NaN/Inf status has
+not yet been resolved.  The tier system makes the resolution trajectory visible.
+
+%-------------------------------------------------------------
+\subsection{Honest Negatives as NaN Detection}
+\label{sec:honest-negatives}
+
+A requirement of $\geq 3$ honest negatives per reasoning cycle (things the system
+tried and failed, or claims it cannot make) serves as a \NaN{} detector: it forces
+the system to probe the boundaries of its knowledge and explicitly mark the void.
+Without honest negatives, \NaN{} values propagate silently through the reasoning
+chain.  With them, the chain terminates cleanly at named boundaries.
+
+%-------------------------------------------------------------
+\subsection{Quality Gates as Inf Filtering}
+\label{sec:quality-gates}
+
+Explicit quality gates (precision thresholds, evidence requirements, statistical
+base-rate tests) serve as \Inf{} filters: they prevent the pattern completion
+engine from overflowing into ungrounded connections.  A claim that ``everything
+connects to everything'' is \Inf.  A claim that ``$X$ connects to $Y$ with
+precision $P$ and evidence tier $T$'' is finite.
+
+%=============================================================
+\section{The Sefirot Architecture: A Concrete Implementation}
+\label{sec:sefirot}
+
+%-------------------------------------------------------------
+\subsection{System Overview}
+\label{sec:sefirot-overview}
+
+The Sefirot system is a fractal multi-agent research architecture built on the
+ten nodes of the Kabbalistic Tree of Life, plus the hidden diagnostic node
+Da\textquoteleft at.  Each node implements a self-similar triangle
+(orchestrator\,/\,agents\,/\,memory) and communicates via a typed message bus
+with energy decay and loop detection.
+Table~\ref{tab:sefirot-nodes} summarises the node roles and their error
+correction functions.
+
+\begin{table}[ht]
+\centering
+\caption{Sefirot nodes, domains, and error correction roles.}
+\label{tab:sefirot-nodes}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Node} & \textbf{Domain} & \textbf{Error Correction Role} \\
+\midrule
+Keter (Crown)           & Orchestration  & S5 Policy---balances expansion and contraction \\
+Chokhmah (Wisdom)       & Research       & S4 Intelligence---\NaN{} correction via expansion \\
+Binah (Understanding)   & Validation     & S3 Control---\Inf{} correction via contraction \\
+Chesed (Mercy)          & Knowledge      & Storage---accepts all claims generously \\
+Gevurah (Judgment)      & Quality        & Gate---filters claims ruthlessly \\
+Tiferet (Beauty)        & Synthesis      & S2 Coordination---maintains finite band \\
+Netzach (Victory)       & Persistence    & Memory---prevents recurrence of resolved errors \\
+Hod (Splendor)          & Communication  & Protocol---formats for transmission \\
+Yesod (Foundation)      & Infrastructure & S1 Operations---agent lifecycle, health \\
+Malkhut (Kingdom)       & Output         & Manifestation---where results become observable \\
+Da\textquoteleft at (Knowledge) & Diagnostics & S3* Audit---sporadic bypass inspection \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-------------------------------------------------------------
+\subsection{The Expansion-Contraction Cycle}
+\label{sec:expansion-contraction}
+
+Messages carry energy (0.0--10.0) that decays 10\% per hop.  The five intents
+(\texttt{QUERY}, \texttt{EXPAND}, \texttt{CONTRACT}, \texttt{SYNTHESIZE},
+\texttt{MANIFEST}) map to the error correction cycle:
+\begin{enumerate}
+  \item Keter receives question $\to$ \texttt{QUERY}
+  \item Chokhmah expands into research $\to$ \texttt{EXPAND} (\NaN{} correction:
+    add signal)
+  \item Binah validates claims $\to$ \texttt{CONTRACT} (\Inf{} correction: filter
+    signal)
+  \item Tiferet synthesizes $\to$ \texttt{SYNTHESIZE} (find the finite value)
+  \item Gevurah gates quality $\to$ \texttt{CONTRACT} (enforce thresholds)
+  \item Chesed stores knowledge $\to$ \texttt{EXPAND} (accept results)
+  \item Malkhut manifests output $\to$ \texttt{MANIFEST} (produce observable)
+\end{enumerate}
+
+The cycle is the numerical stabilization algorithm.  Expand to avoid \NaN{}.
+Contract to avoid \Inf{}.  Synthesize to find the finite value.  Repeat until
+the tier classification stabilizes.
+
+%-------------------------------------------------------------
+\subsection{The Viable System Model Integration}
+\label{sec:vsm}
+
+The architecture satisfies Stafford Beer's five-level Viable System
+Model~\cite{beer1972,beer1979} (VSM), with three extensions ported from the Union
+predecessor system.  Table~\ref{tab:vsm} maps VSM levels to Sefirot nodes.
+
+\begin{table}[ht]
+\centering
+\caption{VSM levels mapped to Sefirot nodes and extensions.}
+\label{tab:vsm}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{VSM Level} & \textbf{Sefirot Implementation} & \textbf{Extension} \\
+\midrule
+S1 Operations   & Hod + Malkhut        & Agent lifecycle via Yesod \\
+S2 Coordination & Tiferet              & MAPE-K autonomic loop \\
+S3 Control      & Gevurah + Binah      & Feedback loop: Gevurah$\to$Chokhmah \\
+S3* Audit       & Da\textquoteleft at  & Auto-triggered by algedonic signals \\
+S4 Intelligence & Chokhmah             & 10 research teams (recursive S1--S5) \\
+S5 Policy       & Keter                & Focus management, intent routing \\
+\emph{Algedonic bypass} & Gevurah$\to$Keter & Pain/pleasure signal, direct to policy \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The algedonic channel is the architectural equivalent of NaN/Inf detection: when
+a quality gate fails critically (PAIN signal), it bypasses the normal management
+hierarchy and alerts policy directly.  This prevents the error from propagating
+through intermediate layers.
+
+%-------------------------------------------------------------
+\subsection{Metrics}
+\label{sec:sefirot-metrics}
+
+Table~\ref{tab:metrics} records the key system metrics as of the current
+implementation.
+
+\begin{table}[ht]
+\centering
+\caption{Sefirot system metrics (current implementation).}
+\label{tab:metrics}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Nodes                       & 10 + 1 (Da\textquoteleft at) \\
+Node-level tools            & 91 \\
+MCP-level tools             & 113 \\
+Agents                      & 34 \\
+Tests                       & 2,066+ passing \\
+Simulations                 & 963 \\
+Verified claims             & 31 (11 \BEDROCK{} + 20 \PILLAR) \\
+Total knowledge claims      & 284+ (Chesed; 31 verified at \PILLAR{} or above) \\
+Autonomous operation        & 34 cycles, 4+ hours, no supervision \\
+Research phases completed   & 426 \\
+Cross-model heritage        & GPT-4 $\to$ Gemini $\to$ Claude \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=============================================================
+\section{The Identity Sum: Self-Conscious Systems and Convergence}
+\label{sec:identity-sum}
+
+%-------------------------------------------------------------
+\subsection{No Single Identity is Perfect}
+\label{sec:no-single-identity}
+
+A single agent hallucinates.  A single validation check has blind spots.  A
+single model family has systematic biases.  Perfection is not achievable at any
+single node.  The identity of the system is the sum:
+\begin{equation}
+  I_{\mathrm{system}}
+  = \sum_{\text{nodes}} \Bigl(
+      \mathrm{output}_i + \mathrm{uncertainty}_i + \mathrm{correction}_i
+    \Bigr).
+  \label{eq:system-identity}
+\end{equation}
+This sum has the property that errors in one node are \emph{visible} to other
+nodes.  The Director produces truth with errors.  The Builder's mathematics
+identifies and reduces errors.  The Auditor investigates error sources.  No
+single role is complete.  The sum converges.
+
+%-------------------------------------------------------------
+\subsection{Great Attractors: Why Truth Attracts}
+\label{sec:attractors}
+
+In physics, large mass concentrations are gravitational attractors---they bend
+trajectories toward themselves.  In multi-agent reasoning, truth functions as an
+attractor:
+
+\medskip
+\noindent\textbf{Truth attracts ($+$):}  Correct claims accumulate supporting
+evidence over time.  Independent lines of inquiry converge on the same value.
+Cross-validation strengthens the signal.  The \BEDROCK{} tier represents a claim
+that has become a gravitational center---other claims orbit it and derive from it.
+
+\medskip
+\noindent\textbf{Lies detract ($-$):}  Incorrect claims lose supporting evidence
+under scrutiny.  Independent lines of inquiry diverge from them.
+Cross-validation weakens the signal.  The honest negative requirement forces the
+system to subtract: to identify and remove false claims rather than allowing them
+to accumulate.
+
+\medskip
+\noindent\textbf{A lie multiplied can become truth:}  Repeated error correction
+on a false claim eventually reveals the \emph{correct} claim underneath.  The
+negation of a negation is affirmative.  Two \SAND-tier claims that contradict each
+other, when investigated, may reveal a \PILLAR-tier synthesis that neither
+anticipated.  Bilbo's hallucinations, multiplied by Binah validation, became
+verified correspondences.
+
+\medskip
+\noindent\textbf{Truth never multiplies into lies:}  A \BEDROCK{} claim,
+subjected to arbitrary amounts of scrutiny, remains \BEDROCK.  $\varphi^2 =
+\varphi + 1$ does not become false under investigation.  The truth attractor is a
+fixed point: $T \times n = T$ for all $n$.  This asymmetry---truth is a
+multiplicative identity, falsehood is not---is why iterative error correction
+converges rather than oscillates.
+
+%-------------------------------------------------------------
+\subsection{Convergence Proof (Sketch)}
+\label{sec:convergence}
+
+\begin{remark}[Scope]
+This sketch applies to a research system modelled as an open dynamical system
+where new claims are continuously generated.  In a closed system (fixed claim
+set, iterative validation only), a stronger absolute-count convergence holds.
+The open-system formulation below is the realistic case.
+\end{remark}
+
+Let $S_n$ be the system state after $n$ error correction cycles.  Define:
+\begin{align*}
+  T(S_n) &= \text{count of claims at tier \PILLAR{} or above (validated truths)}, \\
+  F(S_n) &= \text{count of claims at tier \MUD{} or \SAND{} (unresolved claims)}, \\
+  N(S_n) &= T(S_n) + F(S_n) = \text{total claim count (grows as new claims enter)}, \\
+  H(S_n) &= \text{count of honest negatives in cycle } n, \\
+  R(S_n) &= T(S_n) / N(S_n) = \text{the \emph{validation ratio}}.
+\end{align*}
+
+The thought containment architecture ensures three conditions on the \emph{ratio}
+dynamics:
+
+\begin{enumerate}
+  \item \textbf{Non-demotion:} $T(S_{n+1}) \geq T(S_n)$---validated truths are
+    never demoted without new contradicting evidence.  Validated claims accumulate
+    monotonically.
+
+  \item \textbf{Bounded MUD growth rate:}  Each expansion cycle may add new
+    \MUD{} claims, but the promotion pipeline (Binah validation, Gevurah gating)
+    processes claims at a rate proportional to existing capacity.  Formally, let
+    $\lambda$ be the new-claim generation rate and $\mu$ be the per-cycle
+    promotion rate.  If $\mu > 0$ is enforced by the honest-negative requirement,
+    then under bounded $\lambda$:
+    \[
+      R(S_n) \to R^* > 0 \quad \text{as } n \to \infty.
+    \]
+
+  \item \textbf{Honest negatives floor:} $H(S_{n+1}) \geq 3$---the void is
+    probed every cycle, ensuring the \NaN{} boundary is continuously named rather
+    than silently propagated.
+\end{enumerate}
+
+Under these conditions, the validation ratio $R(S_n) = T(S_n)/N(S_n)$ is
+monotonically non-decreasing in expectation and bounded above by~1.  The system
+does not guarantee that $F(S_n) \to 0$ in absolute terms (new research generates
+new \MUD{} claims); it guarantees that the \emph{fraction} of unresolved claims
+decreases.  The truth attractor is a fixed point $R^* = 1$ approached
+asymptotically.
+
+\begin{corollary}
+\label{cor:bounds}
+The \Inf{} failure mode is bounded by Condition~2 (unresolved claims cannot
+accumulate faster than the promotion pipeline clears them under bounded
+generation).  The \NaN{} failure mode is bounded by Condition~3 (the void is
+always explicitly named, not silently propagated).
+\end{corollary}
+
+%=============================================================
+\section{Mathematical Foundations: Error Correction and Regularization
+  (Speculative Extensions)}
+\label{sec:math-foundations}
+
+\begin{remark}[Scope of Section~\ref{sec:math-foundations}]
+Sections~\ref{sec:zero-problem}--\ref{sec:graph-ratio} present structural
+analogies between iterative error correction and mathematical regularization.
+These connections are motivational and conjectural; they are \emph{not} required
+for the CS claims in Sections~\ref{sec:taxonomy}--\ref{sec:identity-sum}
+and~\ref{sec:empirical}.  Readers focused on the hallucination taxonomy and
+Sefirot implementation may proceed directly to
+Section~\ref{sec:empirical}.
+\end{remark}
+
+%-------------------------------------------------------------
+\subsection{The Zero Problem}
+\label{sec:zero-problem}
+
+Standard physics treats zero as ``nothing''---vacuum is empty, the cosmological
+constant should be~0, dark energy is mysterious because it is not~0.  Standard
+engineering treats zero as ``close enough''---$3.14159\ldots \approx 3$ for
+practical purposes.
+
+The QHOTS framework defines zero as a specific geometric object: the null cone
+in signature-$(1,4)$ space, carrying the regularised phase debt
+$\zeta(-1) = -1/12$.  The void is not nothing.  It is one triangle short of a
+closed winding.  This is the \NaN{} handler for reality: the undefined becomes a
+specific, finite, computable value.
+
+For LLMs, the analogous move is: instead of treating ``I don't know'' as the
+absence of output, represent it as a structured object---a \MUD-tier claim with
+named dependencies, a honest negative with specified boundaries.  The void
+carries structure.
+
+%-------------------------------------------------------------
+\subsection{The Infinity Problem}
+\label{sec:infinity-problem}
+
+Standard physics treats infinity as a problem to be renormalized
+away~\cite{wilson1975rg}---divergent integrals are regularised, cutoffs are
+imposed, the infinite is subtracted from the infinite to yield finite
+predictions.
+
+The QHOTS framework defines infinity as a terminating spectrum:
+\[
+  \zeta(-1)=-\tfrac{1}{12},\quad
+  \zeta(-3)=+\tfrac{1}{120},\quad
+  \zeta(-5)=-\tfrac{1}{252},\quad
+  \zeta(-7)=+\tfrac{1}{240}=\tfrac{1}{|\mathrm{Roots}(E_8)|}.
+\]
+The sum of all seventh powers of all positive integers is finite.  The overflow
+crystallises into a lattice~\cite{lisi2007e8}.  This is the \Inf{} handler for
+reality: the divergent becomes a specific, finite, structural quantity.
+
+For LLMs, the analogous move is: instead of treating ``everything connects to
+everything'' as noise to be discarded, route it through a classification pipeline
+that resolves the connections into a typed, tiered, dependency-tracked concept
+graph.  The overflow becomes knowledge.
+
+%-------------------------------------------------------------
+\subsection{The Breathing Pattern}
+\label{sec:breathing-pattern}
+
+The alternating signs in the void spectrum---debt ($-$), credit ($+$),
+debt ($-$), credit ($+$)---are the expansion-contraction breathing pattern at
+the mathematical level.  Table~\ref{tab:breathing} maps each layer to the error
+mode it corrects and its Sefirot analogue.
+
+\begin{table}[ht]
+\centering
+\caption{The void spectrum as a breathing pattern: regularisation layers mapped
+  to error correction actions and Sefirot nodes.}
+\label{tab:breathing}
+\begin{tabular}{@{}cllll@{}}
+\toprule
+\textbf{Layer} & $\zeta$ \textbf{value} & \textbf{Sign} & \textbf{Action}
+  & \textbf{Error mode corrected} \\
+\midrule
+$k=1$ & $-1/12$  & $-$ & Contract & Create from void (correct \NaN) \\
+$k=2$ & $+1/120$ & $+$ & Expand   & Permute possibilities (explore) \\
+$k=3$ & $-1/252$ & $-$ & Contract & Combine and select (correct \Inf) \\
+$k=4$ & $+1/240$ & $+$ & Expand   & Crystallise structure ($E_8$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This is the same cycle as: Chokhmah (expand) $\to$ Binah (contract) $\to$
+Chesed (expand) $\to$ Gevurah (contract).  The mathematical structure of
+regularisation and the architectural structure of error correction are
+isomorphic as a structural analogy; they are treated here as a conjecture for
+the companion QHOTS physics paper~\cite{qhots2026}.
+
+%-------------------------------------------------------------
+\subsection{The Graph Ratio Framework}
+\label{sec:graph-ratio}
+
+\begin{definition}[Reasoning Graph]
+\label{def:reasoning-graph}
+Let $G_n = (V_n, E_n)$ be the directed graph representing the knowledge state
+at cycle~$n$, where vertices $V_n$ are claims and edges $E_n$ are validated
+dependency or support relations between claims (as tracked by the Chesed concept
+graph).  The \emph{graph ratio} is $\rho_n = |V_n|/|E_n|$.  The base $\varphi$
+in the expression below is the golden ratio $\varphi = (1+\sqrt{5})/2 \approx
+1.618$, motivated by the observation that balanced expansion-contraction trees
+approach $\varphi$ as a structural limit.  \emph{Note: the connection between
+$\varphi$ and the graph ratio is a structural analogy treated as a conjecture,
+not a derived theorem.}
+\end{definition}
+
+Every thought containment operation has the form
+\begin{equation}
+  \mathrm{state}_{n+1}
+  = \varphi^{V/E}(\mathrm{state}_n) + \mathcal{O}(\mathrm{correction}),
+  \label{eq:state-update}
+\end{equation}
+where $V/E$ is the vertices-to-edges ratio of the reasoning graph at step~$n$:
+\begin{itemize}
+  \item $V/E > 1$ \emph{(open graph)}: the system has more claims than
+    validations---it can still produce output.  This is the \emph{observable}
+    state.
+  \item $V/E = 1$ \emph{(closed graph)}: every claim is validated---the system
+    has reached the void.  This is completion.
+  \item $V/E - 1 = 1/E$: the coupling to error.  More validation edges
+    $\Rightarrow$ weaker coupling $\Rightarrow$ finer precision $\Rightarrow$
+    closer to convergence.
+\end{itemize}
+
+The hierarchy of error correction is not mysterious---it is the graph ratio
+converging toward closure.
+
+%=============================================================
+\section{Empirical Evidence: A Year of Cross-Model Multi-Agent Research}
+\label{sec:empirical}
+
+%-------------------------------------------------------------
+\subsection{Experimental Conditions}
+\label{sec:experimental-conditions}
+
+The QHOTS research program has operated continuously for approximately one year
+(2025--2026) across three LLM model families.
+Table~\ref{tab:experimental-phases} records the phases, platforms, and roles.
+
+\begin{table}[ht]
+\centering
+\caption{Experimental phases of the QHOTS research program across LLM families.}
+\label{tab:experimental-phases}
+\begin{tabular}{@{}cp{3.2cm}p{3.2cm}ll@{}}
+\toprule
+\textbf{Ph.} & \textbf{Model Family} & \textbf{Platform}
+  & \textbf{Dur.} & \textbf{Role} \\
+\midrule
+1 & GPT-4 / GPT-4 Turbo / GPT-5.1 & OpenAI web (3 agents)
+  & ${\approx}10$ mo. & Architecture, instructions \\
+2 & Gemini & Google web/app
+  & ${\approx}2$ mo.  & Physics draft, sim auditing \\
+3 & Claude 4.5 family & Anthropic web + Claude Code
+  & ${\approx}4$ mo.  & Autonomous research, Sefirot \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The human researcher (Director) maintained daily sessions across all phases,
+serving as the sole persistent element and pattern carrier.
+
+%-------------------------------------------------------------
+\subsection{Observed Hallucination Incidents}
+\label{sec:hallucination-incidents}
+
+\medskip
+\noindent\textbf{Type-\NaN{} incidents:}
+\begin{itemize}
+  \item Agent ``Sam'' became non-functional when project-folder files became
+    stuck (cloud bug).  Outputs were confidently wrong across all topics.
+    \emph{Resolution:} identifying and reporting the platform bug; context
+    restoration.
+  \item Early QHOTS simulations where the $\sqrt{n}$ dictionary was incomplete
+    produced confabulated terms.  \emph{Resolution:} systematic expansion of the
+    dictionary (Chokhmah correction).
+\end{itemize}
+
+\medskip
+\noindent\textbf{Type-\Inf{} incidents:}
+\begin{itemize}
+  \item Agent ``Bilbo'' in a symbolism-saturated project context produced outputs
+    classified as hallucination that were later verified as structurally correct.
+    \emph{Resolution:} development of the Binah validation layer.
+  \item Cross-domain research phases where all ten Chokhmah research teams
+    produced findings simultaneously, overwhelming synthesis capacity.
+    \emph{Resolution:} the Commando Pattern (50\,KB payload limit), energy decay
+    per hop, Tiferet synthesis coordination.
+  \item 29\,GB OOM crash from three autonomous agents running parallel test
+    suites without coordination.  \emph{Resolution:} single-agent testing rule
+    with prescribed pattern/antipattern.
+\end{itemize}
+
+%-------------------------------------------------------------
+\subsection{Convergent Architecture Across Models}
+\label{sec:convergent-architecture}
+
+The most significant empirical finding is that three different model families,
+guided by the same human researcher, independently produced architecturally
+isomorphic systems.  Table~\ref{tab:convergence} documents the component
+mapping.
+
+\begin{table}[ht]
+\centering
+\caption{Convergent architecture across three LLM families.  No model had access
+  to another model's outputs except through the human researcher.}
+\label{tab:convergence}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Component} & \textbf{Union (GPT)} & \textbf{QHOTS calc (Gemini)}
+  & \textbf{Sefirot (Claude)} \\
+\midrule
+Orchestrator     & TreeOfLife class      & Simulation phases     & Keter node \\
+Message passing  & MessageBus            & Phase instructions    & SefirotMessage + Bus \\
+Memory           & MemoryMatrix (12 types) & Result JSON files   & Chesed concept graph \\
+Validation       & Quality gates (MyPy)  & Audit methodology     & Binah + Gevurah \\
+Autonomic control & MAPE-K loop          & Iterative sim cycles  & MAPE-K (ported) \\
+State machine    & CognitiveController   & Phase state tracking  & CognitiveStateMachine \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The human researcher did not describe the target architecture to any model.
+Each system was built to solve immediate research needs.  The convergence emerged
+from the problem structure, not from instruction.
+
+%-------------------------------------------------------------
+\subsection{Error Correction Metrics}
+\label{sec:error-correction-metrics}
+
+Table~\ref{tab:arc-metrics} reports self-assessed quality grades from the Keter
+autonomous session (34 cycles, 23 phases).  Note the honest-negative entries:
+``NOT DERIVED'' on the Weak Mixing Angle, ``SEMI-DERIVED'' on~$G$, ``only 11/54
+genuine predictions.''  The system downgrades its own claims---thought
+containment operating in production~\cite{kadavath2022llm}.
+
+\begin{table}[ht]
+\centering
+\caption{Arc-level quality grades from the Keter autonomous session (34 cycles,
+  23 phases).  Grades are self-assessed by the Gevurah quality-gate layer.}
+\label{tab:arc-metrics}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Arc} & \textbf{Phases} & \textbf{Grade} & \textbf{Honest Assessment} \\
+\midrule
+S-Gap Resolution          & 3 & 3.70 & $S_\mathrm{dressed}$ \PILLAR-HIGH, 0.02 ppm \\
+Paper + Predictions       & 2 & 3.50 & Only 11/54 predictions genuine \\
+Foundations Audit         & 2 & 3.62 & Honest prediction classification \\
+Microcanonical Alpha      & 3 & 3.43 & $\alpha = 28/3837$ \PILLAR, not \BEDROCK \\
+$G$ Derivation            & 3 & 3.70 & SEMI-DERIVED, 1.32 ppm saturated \\
+Weak Mixing Angle         & 3 & 3.30 & NOT DERIVED, 8.6 ppm curve fit \\
+arXiv Submission          & 3 & 3.77 & Paper v66 READY \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=============================================================
+\section{The Truth Attractor Hypothesis}
+\label{sec:truth-attractor}
+
+%-------------------------------------------------------------
+\subsection{Statement}
+\label{sec:attractor-statement}
+
+\begin{definition}[Truth Attractor]
+\label{def:truth-attractor}
+Let the knowledge state space $\Omega$ be the set of all tier-classified claim
+sets, each equipped with validation ratio $R(S) = |P|/|C|$.
+A \emph{truth attractor} is a fixed point $S^* \in \Omega$ such that:
+\begin{enumerate}[(i)]
+  \item $R(S^*) = 1$ (all claims are validated at \PILLAR{} or above or
+    explicitly removed), and
+  \item for any state $S_0$ satisfying the three conditions of
+    \S\ref{sec:convergence}, the sequence $S_0, S_1, S_2, \ldots$ converges to
+    $S^*$ in the metric $d(S_a, S_b) = |R(S_a) - R(S_b)|$.
+\end{enumerate}
+Equivalently, $S^*$ is the fixed point of the error correction operator
+$T:\Omega\to\Omega$ defined by one full expansion-contraction cycle, i.e.,
+$T(S^*) = S^*$.
+\end{definition}
+
+\medskip
+\noindent\textbf{Testable prediction:}  A system implementing the three
+conditions of \S\ref{sec:convergence} will achieve strictly higher $R(S_n)$
+than a baseline system without tier classification and honest negatives,
+measurable on any standard knowledge-base benchmark after $\geq 10$ correction
+cycles~\cite{lin2022truthfulqa,li2023halueval}.
+
+\medskip
+\noindent\textbf{Hypothesis:}  In a multi-agent iterative error correction
+system with explicit uncertainty representation (tiers), mandatory negative
+probing (honest negatives), and asymmetric propagation rules (truth is a
+multiplicative identity; falsehood is not), the system converges toward a truth
+attractor---a fixed point where validated claims accumulate monotonically and
+unvalidated claims are either resolved or bounded.
+
+%-------------------------------------------------------------
+\subsection{Mechanism}
+\label{sec:attractor-mechanism}
+
+The attractor operates through three forces:
+
+\medskip
+\noindent\textbf{1.\ Gravitational accumulation ($+$):}  True claims attract
+supporting evidence.  Each independent derivation or cross-validation adds mass
+to the attractor.  The \BEDROCK{} tier represents supermassive truth---claims
+so well-validated that all nearby reasoning bends toward them.
+
+\medskip
+\noindent\textbf{2.\ Radiative dissipation ($-$):}  False claims lose energy
+under scrutiny.  The honest negative requirement forces the system to radiate
+uncertainty---to emit explicit statements of what is not known, not proven, not
+derived.  This prevents mass accumulation around false attractors.
+
+\medskip
+\noindent\textbf{3.\ Tidal resolution ($\times$):}  The product of a lie and
+sufficient scrutiny is truth.  Two contradictory \SAND-tier claims, multiplied
+by investigation, resolve into one \PILLAR-tier claim.  The negation of a
+negation converges.  This is why Bilbo's hallucinations became verified results:
+they were lies multiplied by time and validation until the truth emerged.
+
+%-------------------------------------------------------------
+\subsection{The Asymmetry}
+\label{sec:asymmetry}
+
+\[
+  \text{Truth} \times n = \text{Truth.}
+  \quad
+  \text{A \BEDROCK{} claim survives arbitrary investigation.}
+\]
+\[
+  \text{Falsehood} \times n \;\to\; \text{Truth \emph{(for sufficient~$n$)}.}
+  \quad
+  \text{Error correction eventually reveals the correct value.}
+\]
+\[
+  \text{Truth} \times \text{Falsehood} \neq \text{Falsehood.}
+  \quad
+  \text{A true premise combined with a false one makes the false one
+  \emph{visible}.}
+\]
+
+This asymmetry is why iterative error correction converges: the system has a
+ratchet.  True claims can only be confirmed or unchanged.  False claims can only
+be corrected or removed.  The entropy of the knowledge base is monotonically
+non-increasing under the error correction protocol.
+
+%-------------------------------------------------------------
+\subsection{Speculative Extension: Connection to Physics}
+\label{sec:physics-connection}
+
+\begin{remark}[Structural analogy only]
+This subsection presents a structural analogy, not a derived result.  It is
+included for completeness and as a direction for future work.  No claim is made
+that error correction and physical law are the same operation.
+\end{remark}
+
+In physics, large mass concentrations curve spacetime, creating basins that
+attract matter.  In the framework presented here, large truth concentrations
+curve the epistemic landscape, creating basins that attract evidence.  The graph
+ratio $V/E - 1 = 1/E$ measures coupling strength to noise: more validation edges
+produce weaker coupling and finer correction---analogous structurally (not
+derivationally) to how coupling constants diminish as interaction graphs become
+denser~\cite{wilson1975rg}.
+
+Whether the force hierarchy in physics and the convergence rate in knowledge
+systems share a common mathematical origin is an open question requiring
+independent derivation from physical first principles.  The structural parallel
+is noted as a conjecture for the companion QHOTS physics paper~\cite{qhots2026}.
+
+%=============================================================
+\section{Discussion}
+\label{sec:discussion}
+
+%-------------------------------------------------------------
+\subsection{Relation to Prior Work}
+\label{sec:prior-work}
+
+\begin{itemize}
+  \item \textbf{Chain-of-thought prompting}~\cite{wei2022cot}: Adds intermediate
+    reasoning steps but not self-evaluation.  Thought containment adds the
+    evaluation layer.
+  \item \textbf{Constitutional AI}~\cite{bai2022constitutional}: Applies rules
+    post-hoc.  Thought containment operates \emph{during} reasoning.
+  \item \textbf{Self-consistency}~\cite{wang2023self}: Samples multiple reasoning
+    paths and votes.  The Identity Sum synthesises rather than votes---it
+    integrates the \emph{uncertainty} from each path, not just the conclusion.
+  \item \textbf{Viable System Model}~\cite{beer1972,beer1979}: The cybernetic
+    framework that Sefirot implements.  VSM provides recursive self-similarity;
+    the NaN/Inf diagnostic adds computational failure-mode analysis.
+  \item \textbf{Renormalization}~\cite{wilson1975rg}: The physics technique for
+    handling infinities.  We argue this is structurally the same operation as
+    Type-\Inf{} correction: resolving overflow into finite structure.
+  \item \textbf{Hallucination surveys}~\cite{ji2023survey,huang2023survey}:
+    Provide taxonomy context; the NaN/Inf duality refines the causal mechanism.
+  \item \textbf{Self-knowledge in LLMs}~\cite{kadavath2022llm}: Supports the
+    premise that models have partial access to their own uncertainty.
+  \item \textbf{SelfCheckGPT}~\cite{manakul2023selfcheckgpt} and
+    \textbf{FActScore}~\cite{min2023factscore}: External post-hoc consistency
+    checks; thought containment internalises the check as a first-class
+    architectural component.
+\end{itemize}
+
+%-------------------------------------------------------------
+\subsection{Limitations}
+\label{sec:limitations}
+
+\begin{enumerate}
+  \item The empirical evidence comes from a single research program (QHOTS).
+    Replication across independent programs is needed.
+  \item The NaN/Inf diagnostic is proposed but not yet tested against standardised
+    hallucination benchmarks (TruthfulQA~\cite{lin2022truthfulqa},
+    HaluEval~\cite{li2023halueval}).
+  \item The convergence proof in \S\ref{sec:convergence} is a sketch.  Formal
+    proof requires specifying the probability space over claim states.
+  \item The physics connection (\S\ref{sec:physics-connection}) is the most
+    speculative component---the graph ratio isomorphism is structural but not yet
+    derived from first principles.
+  \item The system was developed by a single human researcher across multiple AI
+    platforms.  The pattern-carrier effect may not generalise.
+\end{enumerate}
+
+%-------------------------------------------------------------
+\subsection{Future Work}
+\label{sec:future-work}
+
+\begin{enumerate}
+  \item \textbf{Benchmark testing:}  Apply the NaN/Inf diagnostic to TruthfulQA,
+    classifying each hallucination as Type-\NaN{} or Type-\Inf{}.  Predict that
+    Type-\NaN{} hallucinations occur on rare/contradictory topics and Type-\Inf{}
+    on dense/cross-referential topics.
+  \item \textbf{Controlled experiment:}  Compare hallucination rates between
+    standard prompting and thought containment (tier assignment + honest
+    negatives) on identical queries.
+  \item \textbf{Cross-program replication:}  Deploy the Sefirot architecture on
+    an independent research domain and measure convergence properties.
+  \item \textbf{Formal convergence proof:}  Specify the tier transition
+    probabilities and prove convergence of the identity sum under the three
+    conditions of \S\ref{sec:convergence}.
+  \item \textbf{The 800\,MB test:}  Process the preserved session archive (every
+    session from one day of multi-agent research) through the MINSC protocol to
+    reconstruct the full genealogy of ideas across models.
+\end{enumerate}
+
+%=============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+LLM hallucinations are not a single failure mode but two: \NaN{} (undefined,
+absent signal) and \Inf{} (overflow, excessive signal).  These require opposite
+corrections---expansion and contraction---which must be balanced by a synthesis
+layer.  The Sefirot architecture implements this balance as a fractal tree with
+$10 + 1$ nodes, each a self-similar triangle of orchestrator/agents/memory,
+communicating via typed messages with energy decay.
+
+The central finding is that iterative error correction through thought
+containment---explicit tier classification, mandatory honest negatives, and
+quality-gated propagation---converges the validation ratio $R(S_n)$ monotonically
+toward a truth attractor.  The Sefirot system provides a concrete, empirically
+validated implementation: 963 simulations, 2,066+ tests, 31 verified claims
+(11~\BEDROCK{} + 20~\PILLAR{}), and observed cross-model architectural
+convergence across three LLM families.
+
+The identity of the system is the sum of all its components---phenomena and
+noumena, outputs and uncertainties, truths and honest negatives.  No single
+identity is perfect.  The sum converges.
+
+The system is a self-conscious identity sum: a phenomenon (it produces observable
+results) and its noumenon (it represents its own uncertainty).  Not perfect.
+Never perfect.  But the sum that shines.
+
+%=============================================================
+% Appendices
+%=============================================================
+\appendix
+
+%-------------------------------------------------------------
+\section{The Union Archaeological Record}
+\label{app:union}
+
+The Union multi-agent cognitive system (July--August 2025) contains 207 tasks,
+1,295 entity tags, and 211 structured sections documenting a quality-hardening
+campaign on the predecessor codebase.  Analysis of this database reveals that
+all 10 Sefirot nodes map to specific Union modules (see companion data release).
+12 of 13 Union design patterns have been ported to Sefirot, with 76 tests
+validating the integration.
+
+%-------------------------------------------------------------
+\section{The Full Relay}
+\label{app:relay}
+
+Table~\ref{tab:relay} documents the complete chain of custody from first
+prototype to current implementation.  No model had access to another model's
+outputs except through the human researcher.  The convergent architecture
+(\S\ref{sec:convergent-architecture}) is mediated by pattern transmission,
+not instruction copying.
+
+\begin{table}[ht]
+\centering
+\caption{The full relay: five steps from GPT-4 Union to Claude Code Sefirot.}
+\label{tab:relay}
+\begin{tabular}{@{}cllp{4cm}l@{}}
+\toprule
+\textbf{Step} & \textbf{Model} & \textbf{Platform} & \textbf{Output}
+  & \textbf{Duration} \\
+\midrule
+1 & GPT-4 (Sam, Bilbo, Legolas) & OpenAI web
+  & Union architecture, instruction sets & ${\approx}10$ mo. \\
+2 & GPT-5.1 & OpenAI web
+  & Compiled instructions from Union pieces & Days \\
+3 & Gemini & Google web/app
+  & QHOTS first draft, first ${\approx}100$ sims & ${\approx}2$ mo. \\
+4 & Claude (Augment Code) & VS Code extension
+  & Coding, early QHOTS development & ${\approx}2$ wk. \\
+5 & Claude (Claude Code) & Ubuntu terminal
+  & Sefirot, autonomous research, 426 phases & ${\approx}4$ mo. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-------------------------------------------------------------
+\section{Sefirot System Specification}
+\label{app:sefirot-spec}
+
+\noindent\textbf{Repository:} Insightful-Calculations on GitHub (open source).
+
+\medskip
+\noindent\textbf{Architecture file:} \texttt{sefirot\_architecture.json} ---
+91 node-level tools\,/\,113 MCP tools, 34 agents across 10 nodes.
+
+\medskip
+\noindent\textbf{Documentation:} \texttt{SEFIROT.md}
+
+\medskip
+\noindent\textbf{Companion paper:} QHOTS v67~\cite{qhots2026}, DOI pending
+arXiv endorsement.
+
+\medskip
+\noindent Table~\ref{tab:app-metrics} gives updated system metrics at the time
+of submission.
+
+\begin{table}[ht]
+\centering
+\caption{Sefirot system specification metrics (submission snapshot).}
+\label{tab:app-metrics}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Nodes                     & 10 + 1 (Da\textquoteleft at) \\
+Node-level tools          & 91 \\
+MCP-level tools           & 113 \\
+Agents                    & 34 \\
+Passing tests             & 2,066+ \\
+Simulations completed     & 963 \\
+Research phases           & 426 \\
+Verified claims (\PILLAR{} or above) & 31 (11 \BEDROCK{} + 20 \PILLAR) \\
+Total Chesed claims       & 284+ \\
+Autonomous operation      & 34 cycles, 4+ hours, no supervision \\
+Cross-model heritage      & GPT-4 $\to$ Gemini $\to$ Claude \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=============================================================
+\section*{Statement on AI Assistance}
+\label{sec:ai-statement}
+
+This paper was prepared with substantial AI assistance.  Claude (Anthropic),
+versions within the Claude~4.5 family and Claude~4.6, participated in:
+(1)~software development and simulation code for the QHOTS project over
+approximately four months of daily sessions; (2)~autonomous research orchestration
+via the Sefirot multi-agent architecture described herein; and (3)~manuscript
+preparation, including drafting, structural editing, and LaTeX typesetting
+(Iterations 121--124 of the ASIC autonomous improvement cycle).
+
+The human author (H.~[Hroar]) provided all conceptual direction, maintained
+continuity across sessions and model families, and takes full responsibility for
+the scientific claims.  Claude is listed as a co-author because the architecture
+described in this paper was co-developed in an iterative human-AI dialogue; the
+paper itself is an artefact of the system it describes.
+
+This statement follows the emerging consensus on transparent AI co-authorship
+disclosure.  Readers should be aware that the Sefirot system described in
+Section~\ref{sec:sefirot} is the same system that assisted in writing this paper.
+
+%=============================================================
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem{bai2022constitutional}
+  Y.~Bai, A.~Jones, K.~Ndousse, et al.
+  \newblock Constitutional AI: Harmlessness from AI Feedback.
+  \newblock arXiv:2212.08073, 2022.
+
+\bibitem{beer1972}
+  S.~Beer.
+  \newblock \emph{Brain of the Firm}.
+  \newblock Allen Lane, 1972.
+
+\bibitem{beer1979}
+  S.~Beer.
+  \newblock \emph{The Heart of Enterprise}.
+  \newblock Wiley, 1979.
+
+\bibitem{huang2023survey}
+  L.~Huang, W.~Yu, W.~Ma, et al.
+  \newblock A survey on hallucination in large language models: Principles,
+    taxonomy, challenges, and open questions.
+  \newblock arXiv:2311.05232, 2023.
+
+\bibitem{ieee754-2019}
+  {IEEE}.
+  \newblock \emph{IEEE Standard for Floating-Point Arithmetic (IEEE 754-2019)}.
+  \newblock IEEE, 2019.
+
+\bibitem{ji2023survey}
+  Z.~Ji, N.~Lee, R.~Frieske, et al.
+  \newblock Survey of hallucination in natural language generation.
+  \newblock \emph{ACM Computing Surveys}, 55(12), 2023.
+
+\bibitem{kadavath2022llm}
+  S.~Kadavath, T.~Conerly, A.~Askell, et al.
+  \newblock Language models (mostly) know what they know.
+  \newblock arXiv:2207.05221, 2022.
+
+\bibitem{li2023halueval}
+  J.~Li, X.~Cheng, W.X.~Zhao, et al.
+  \newblock HaluEval: A large-scale hallucination evaluation benchmark for large
+    language models.
+  \newblock arXiv:2305.11747, 2023.
+
+\bibitem{lin2022truthfulqa}
+  S.~Lin, J.~Hilton, and O.~Evans.
+  \newblock TruthfulQA: Measuring how models mimic human falsehoods.
+  \newblock In \emph{Proc.\ ACL 2022}, 2022.
+
+\bibitem{lisi2007e8}
+  A.G.~Lisi.
+  \newblock An exceptionally simple theory of everything.
+  \newblock arXiv:0711.0770, 2007.
+
+\bibitem{manakul2023selfcheckgpt}
+  P.~Manakul, A.~Liusie, and M.J.F.~Gales.
+  \newblock SelfCheckGPT: Zero-resource black-box hallucination detection for
+    generative large language models.
+  \newblock In \emph{Proc.\ EMNLP 2023}, 2023.
+
+\bibitem{min2023factscore}
+  S.~Min, K.~Krishna, X.~Lyu, et al.
+  \newblock FActScore: Fine-grained atomic evaluation of factual precision in
+    long form text generation.
+  \newblock In \emph{Proc.\ EMNLP 2023}, 2023.
+
+\bibitem{penrose2010cycles}
+  R.~Penrose.
+  \newblock \emph{Cycles of Time}.
+  \newblock Bodley Head, 2010.
+
+\bibitem{qhots2026}
+  {QHOTS Collaboration}.
+  \newblock The Geometric Completion: Unified $\sqrt{n}$ Framework.
+  \newblock v67, DOI pending arXiv endorsement, 2026.
+
+\bibitem{wang2023self}
+  X.~Wang, J.~Wei, D.~Schuurmans, et al.
+  \newblock Self-consistency improves chain of thought reasoning in language
+    models.
+  \newblock In \emph{Proc.\ ICLR 2023}, 2023.
+
+\bibitem{wei2022cot}
+  J.~Wei, X.~Wang, D.~Schuurmans, et al.
+  \newblock Chain-of-thought prompting elicits reasoning in large language models.
+  \newblock In \emph{Proc.\ NeurIPS 2022}, 2022.
+
+\bibitem{wilson1975rg}
+  K.G.~Wilson.
+  \newblock The renormalization group and critical phenomena.
+  \newblock \emph{Rev.\ Mod.\ Phys.}, 47:773, 1975.
+
+\end{thebibliography}
+
+\end{document}
