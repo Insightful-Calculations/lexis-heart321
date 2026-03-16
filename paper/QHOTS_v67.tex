@@ -105,6 +105,10 @@
 %      PILLAR #65 Freudenthal-Prime Ladder: h=(p^2-1)/4 for p=3,5,7,11 gives h(A1)=2,h(G2)=6,h(F4)=12,h(E8)=30; breaks at p=13.
 %      Kolmogorov Optimality remark: 6pi^5 = 20 bits (shortest for mu), 28/3837 = 25 bits (shortest for alpha).
 %      Foundation 120->122 (57B+65P), 102->104 paper-documented.
+% v96: Session 50 Structural Results: surface identity (chi=-3, torus with 3 boundary components),
+%      pentagon-hexagon identity (5+6=11=n, 5x6=30=h(E8), 5!=120=|2I|),
+%      inverse LCM (885720 = n^2 * |2I| * center(Q)), figurate identity (7381=T(121)=H(61)=n*M).
+%      Foundation unchanged at 122 (57B+65P); paper-documented 104.
 \pdfoutput=1
 \documentclass[aps,prd,twocolumn,superscriptaddress,floatfix,nofootinbib]{revtex4-2}
 
@@ -139,7 +143,7 @@
 
 \title{The Geometric Completion:\\
 Unified $\sqrt{n}$ Framework for Fundamental Physics\\[0.5em]
-\small{v95: Foundation 122 claims (57B+65P); PILLAR \#64 $S^9$ Uniqueness; PILLAR \#65 Freudenthal--Prime Ladder; Kolmogorov optimality of $6\pi^5$ (20\,bit) and $28/3837$ (25\,bit)}}
+\small{v96: Session~50 structural results (surface $\chi{=}{-}3$, pentagon--hexagon, inverse LCM, figurate $7381$); Foundation 122 claims (57B+65P)}}
 
 \author{Hr\'{o}ar {\TH}\'{o}r Reynisson\footnote{ORCID: 0009-0003-6518-121X}\\
 \small{with the Sefirot Autonomous Research System}\\[0.3em]
@@ -5233,6 +5237,35 @@ in binary ($5 + 12 = 17$ bits) plus the fraction operator and sign.
 This arithmetic parsimony supports the interpretation that the Geometric
 Completion identifies the \emph{true} generating expressions, not accidental
 near-coincidences.
+
+\subsection{Additional Structural Results (Session~50)}
+\label{sec:session50-structural}
+
+Several structural identities were discovered during the computational
+investigation of Session~50.  These are recorded as remarks; none has
+yet reached PILLAR status.
+
+\begin{enumerate}
+
+\item \textbf{Surface identity.}  The proton surface $\Sigma_{1,3}$ is a
+torus with three boundary components ($\chi = -3$), not a closed genus-3
+surface ($\chi = -4$).  The $-3$ in $3837 = 480 \times 8 - 3$ equals
+$|\chi(\Sigma_{1,3})|$.
+
+\item \textbf{Pentagon--hexagon identity.}  $5 + 6 = 11 = n$,\;
+$5 \times 6 = 30 = h(E_8)$,\; $5! = 120 = |2I|$.  The multiplicative
+group $(\mathbb{Z}/11\mathbb{Z})^{\times} \cong \mathbb{Z}/5\mathbb{Z}
+\times \mathbb{Z}/2\mathbb{Z}$ decomposes as pentagon $\times$ parity.
+
+\item \textbf{Inverse LCM.}
+$\mathrm{lcm}(\text{denominators of }Q^{-1}) = 885720
+= n^{2} \cdot |2I| \cdot \mathrm{center}(Q)
+= M(n) \cdot |SL(2,\mathbb{Z}_{11})|$.
+
+\item \textbf{Figurate identity.}  $7381 = T(121) = H(61) = n \cdot M$,
+simultaneously a triangular number and a hexagonal number.
+
+\end{enumerate}
 
 %=====================================================================
 \section{Blocks 224--236: Closure and Classification}
