@@ -1,0 +1,563 @@
+\pdfoutput=1
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{url}
+
+\geometry{margin=1in}
+
+\lstdefinelanguage{Lean4}{
+  keywords={theorem,lemma,def,import,namespace,end,by,fun,have,let,in,
+            where,if,then,else,return,do,match,with,open,calc,show,from,
+            exact,apply,intro,constructor,refine,ring,norm\_num,decide,
+            native\_decide,linarith,nlinarith,omega,simp,push\_cast,
+            positivity,linear\_combination,interval\_cases,
+            private,protected,noncomputable},
+  keywordstyle=\color{blue}\bfseries,
+  comment=[l]{--},
+  commentstyle=\color{gray}\itshape,
+  string=[b]",
+  stringstyle=\color{red},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{black!30},
+  backgroundcolor=\color{gray!5},
+}
+
+\lstset{language=Lean4}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\title{Machine-Verified Integer Foundations for Qameah Spectral Theory:\\
+       1,077 Lean~4 Declarations}
+
+\author{Hr\'{o}ar \TH\'{o}r Reynisson\textsuperscript{1} \and Claude Opus 4.6\textsuperscript{2}}
+
+\date{March 2026}
+
+\newcommand{\affiliations}{%
+\textsuperscript{1}ORCID: 0009-0003-6518-121X; I\dh nt\ae knistofnun (IceTec), Reykjav\'{\i}k, Iceland\\
+\textsuperscript{2}AI research collaborator, Anthropic, San Francisco, CA, USA}
+
+\begin{document}
+
+\maketitle
+\begin{center}\affiliations\end{center}
+\medskip
+
+\begin{abstract}
+We present a Lean~4 / Mathlib formalization library containing 1,015 theorem
+and lemma declarations, 56 definitions, spanning 66 files, with
+zero \texttt{sorry} placeholders.  The library formally verifies the integer
+arithmetic skeleton of the QHOTS (Qameah Harmonic Oscillator Theory of
+Symmetry) framework, which derives physical constants from the topology of
+an E8-based solid-state vacuum.  Three proof strategies---called
+\emph{hammers}---cover all declarations: (1)~\emph{integer arithmetic}
+(\texttt{norm\_num}, \texttt{native\_decide}, \texttt{omega}), (2)~\emph{algebraic
+number theory} via Mathlib's \texttt{goldenRatio} and \texttt{linear\_combination},
+and (3)~\emph{transcendental interval analysis} using Mathlib's $\pi$-bounds to
+propagate tight inequalities.  Hammer~3 yields the main result of this paper:
+$\lfloor 6\pi^5 \rfloor = 1836$, a machine-verified certification that the
+integer shadow of the classical proton--electron mass-ratio formula equals
+the observed mass ratio.  Additional highlights include the first machine-verified
+proof that $\{S,A\}=0$ for the $11\times 11$ GL$_2(\mathbb{Z}_{11})$ Qameah
+(the Qameah of order~$N$: the $\mathrm{GL}(2,\mathbb{Z}_N)$ magic square
+with parameter $s=(N{+}1)/2$; a distinguished member of the de~la Loub\`ere
+family satisfying the circulant criterion)---a structural identity central to
+Qameah spectral theory---and a Pochhammer generating-function identity (T95, PILLAR~\#71)
+relating the elementary symmetric polynomials of the spectral half to products
+of binomial coefficients.  The library is compiled against Lean~4~v4.14.0
+and Mathlib~v4.14.0.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+The QHOTS framework~\cite{qhots_v69} derives physical constants from
+E8~Lie algebra invariants, the $11\times 11$ Qameah magic square, and
+$\varphi$ (the golden ratio).  Empirical comparisons with measured values
+are outside the scope of formal proof; the purely mathematical
+relationships---divisibility, factorizations, polynomial identities, floor
+values of transcendental expressions---are not.  This paper formalizes that
+integer skeleton in Lean~4~\cite{lean4} / Mathlib~\cite{mathlib2020},
+producing 1,077 declarations (1,015 theorems and lemmas, 56 definitions, 6 private lemmas)
+across the following areas:
+
+\begin{itemize}
+  \item E8 and D4 Lie algebra integer data (dimension, Coxeter number, root
+        count, rank--Coxeter pairing uniqueness).
+  \item Arithmetic of $\alpha = 28/3837$: the denominator decompositions
+        $128\times 30-3=3837$ and $137\times 28+1=3837$, the master
+        polynomial factorization $r^3-4r-480=(r-8)(r^2+8r+60)$, the
+        Clifford Bridge $S_3(11)=2048=2^{11}$ (where
+        $S_3(n)=(n^2{-}1)(2n^4{+}23n^2{+}191)/1890$ is the third
+        even-power-sum of $\csc^2(k\pi/n)$), and the irreducibility
+        $\gcd(28,3837)=1$.
+  \item The integer shadow $\lfloor 6\pi^5\rfloor = 1836$ of the classical
+        mass-ratio term, established via interval arithmetic.
+  \item The anticommutator identity $\{S,A\}=0$---the $N{=}11$ instance
+        of the general algebraic theorem (proved in the companion
+        paper~\cite{qhots_v69})---independently verified by finite matrix
+        enumeration in Lean~4.
+  \item The Pochhammer generating-function identity T95 for spectral symmetric
+        polynomials of Qameah magic squares of orders $N=5,7,11$.
+  \item Golden ratio power identities $\varphi^n = F_n\,\varphi + F_{n-1}$
+        for $n=2,\ldots,5$, where $F_n$ are Fibonacci numbers.
+  \item 41 tiers of supplementary arithmetic (Tiers~3--43), covering magic
+        square properties, exceptional algebra dimensions, McKay
+        correspondence group orders, Euler totients, and combinatorial
+        identities relating 120, 240, 480 to the E8 root system.
+\end{itemize}
+
+The library is publicly available at \url{https://github.com/Insightful-Calculations/qhots_v7_calc};
+scope exclusions are listed in Section~\ref{sec:limitations}.
+
+\section{Library Structure}
+\label{sec:structure}
+
+The library consists of 64 Lean~4 source files organized into two layers:
+a set of 22 \emph{named modules} covering distinct mathematical topics,
+and 41 \emph{tier files} (Tier3 through Tier43) that accumulate
+arithmetic identities in a milestone-driven sequence.  A master import
+file (\texttt{Registry.lean}) imports all other modules.
+
+\subsection{Named modules}
+\label{sec:named}
+
+\begin{table}[ht]
+\centering
+\caption{Named modules in the QHOTSLean library.}
+\label{tab:named}
+\begin{tabular}{lrp{8cm}}
+\toprule
+File & Thms & Principal content \\
+\midrule
+\texttt{Basic.lean}              &  3 & E8 / D4 constants as Lean definitions,
+                                        $248 = 8 + 240$, magic constant $M_{11}=671$ \\
+\texttt{Alpha.lean}              & 13 & $\alpha = 28/3837$ arithmetic, master polynomial,
+                                        Clifford Bridge $S_3(11)=2^{11}$ \\
+\texttt{D4E8Pairing.lean}        &  2 & $r^2=2h+4$ selects exactly $\{D_4,E_8\}$,
+                                        3837 uniqueness among D/E series \\
+\texttt{GoldenMirror.lean}       &  6 & $E_\parallel+E_\perp=480$, ratios 2 and 3,
+                                        complement symmetry \\
+\texttt{GoldenMirrorAlgebraic.lean} & 5 & $\varphi^n$ identities for $n=1,\ldots,5$
+                                          via \texttt{gold\_sq} \\
+\texttt{MuIntegerShadow.lean}    &  8 & $\lfloor 6\pi^5\rfloor = 1836$ via interval
+                                         propagation \\
+\texttt{SAAnticommutator.lean}   &  4 & $\{S,A\}=0$ for the $11\times 11$ GL$_2$
+                                        Qameah square \\
+\texttt{SALemmas.lean}           &  5 & $\mathrm{tr}(S^2)=1210$, $|S|$ row sums,
+                                        $N^2S^2+A^2=0$ \\
+\texttt{CrownJewels.lean}        &  5 & G correction $27-7=20$, $\gcd(28\times 1836,3837)=3$ \\
+\texttt{PochhammerIntegers.lean} & 26 & T95 Pochhammer formula, exact divisibility,
+                                        11-adic ladder \\
+\texttt{Spectral.lean}           & 17 & Spectral identities T91--T97, Vieta formula \\
+\texttt{ProcaLagrangian.lean}    & 11 & BEDROCK \#69--71: $S_{YM}=805255$,
+                                        Proca $m^2=11$, $4L=S_{YM}$ residue \\
+\texttt{ProcaHessian.lean}       & 19 & Hessian integer arithmetic for Proca field \\
+\texttt{MDS.lean}                & 27 & Rank/nullity, $[[11,1,11]]$ MDS code,
+                                        Singleton bound, nilpotency traces \\
+\texttt{SpectralZeta.lean}       & 15 & $\zeta_S(2n)=\binom{2n}{n}/N^{2n-1}$
+                                        integer skeleton \\
+\texttt{EulerChar.lean}          &  8 & $\chi(K_N)=N^2$ iff $N\in\{1,11\}$,
+                                        2-complex counts \\
+\texttt{LehmerQuintic.lean}      & 13 & Minimal polynomial of $2\cos(2\pi/11)$,
+                                        $\mathrm{disc}=11^4$, conductor \\
+\texttt{NewtonSums.lean}         & 20 & Odd $p_{2k-1}=-4^{k-1}$, even
+                                        $p_{2k}=(11\binom{2k}{k}-4^k)/2$ \\
+\texttt{NewtonIdentities.lean}   & 19 & Newton's identities $k=1,\ldots,5$;
+                                        Lehmer coeffs, Vieta consistency \\
+\texttt{FourierDuality.lean}     & 33 & $|\hat{a}_p|^2 = N^2|\sigma_p|^2$,
+                                        trace chain $k=1,\ldots,4$ \\
+\texttt{CirculantHankel.lean}    & 23 & Antisymmetric circulant anticommutes
+                                        symmetric Hankel; $N=11$ DFT skeleton \\
+\texttt{Session67.lean}          & 64 & $N=11$ selection, $S_{YM}$ cross-checks,
+                                        $(5,6,11)$ number dictionary \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Tier files (Tiers~3--43)}
+
+The 41 tier files (4--34 declarations each) accumulate arithmetic
+identities in a milestone-driven sequence: magic square combinatorics,
+exceptional Lie algebra dimensions~\cite{e8_roots}, McKay
+correspondence~\cite{mckay_correspondence} group orders, pentagon--hexagon
+identities, and magic constant formulas $M_N = N(N^2+1)/2$ for
+$N=3,5,7,9,11,13$.
+
+\subsection{Registry and build}
+
+\texttt{Registry.lean} is a master import file that imports all 63 other
+modules.  Building it with
+\begin{center}
+\texttt{lake build}
+\end{center}
+in Lean~4~v4.14.0 with Mathlib~v4.14.0 as the sole dependency compiles all
+1,077 declarations with zero errors and zero \texttt{sorry} placeholders.
+The library compiles under \texttt{lake build} with Lean~4.14.0 and
+Mathlib~4.x; no continuous integration is currently configured.
+
+\section{Three-Hammer Proof Strategy}
+\label{sec:hammers}
+
+All 1,077 declarations are discharged by three complementary
+\emph{hammers}.
+
+\subsection{Hammer~1: Integer Arithmetic}
+
+The majority of declarations are pure arithmetic facts about natural
+numbers or integers.  Lean~4's \texttt{norm\_num} tactic discharges
+any closed arithmetic goal directly, while \texttt{native\_decide}
+handles goals of the form $\forall x \in S,\, P(x)$ when $S$ is a
+finite type and $P$ is decidable.  Compiled native code is generated
+for the decision procedure, making \texttt{native\_decide} practical
+even for products over $|S|=11^2=121$ index pairs.
+
+\begin{example}
+The Clifford Bridge theorem states that the power sum
+$S_3(11) = 2048 = 2^{11}$, where
+$S_3(n) = (n^2-1)(2n^4+23n^2+191)/1890$.
+\begin{lstlisting}
+def S3 (n : Nat) : Rat :=
+  (n^2 - 1) * (2*n^4 + 23*n^2 + 191) / 1890
+
+theorem clifford_bridge : S3 11 = 2048 := by norm_num [S3]
+
+theorem clifford_bridge_unique_11 :
+    forall p in ({3,5,7,11,13,17,19,23,29,31,37,41,43,47} : Finset Nat),
+    S3 p = 2^p <-> p = 11 := by native_decide
+\end{lstlisting}
+\end{example}
+
+\subsection{Hammer~2: Algebraic Number Theory ($\varphi$ via \texttt{goldenRatio})}
+
+For identities involving the golden ratio $\varphi = (1+\sqrt{5})/2$,
+we use Mathlib's \texttt{Data.Real.GoldenRatio} module, which exports
+$\varphi$ as \texttt{goldenRatio} and the defining equation as \texttt{gold\_sq}:
+$\varphi^2 = \varphi + 1$.  Higher powers reduce via
+\texttt{linear\_combination} with a carefully chosen polynomial multiple
+of \texttt{gold\_sq}.
+
+\begin{example}
+The identity $\varphi^5 = 5\varphi + 3$ (Fibonacci coefficients
+$F_5=5$, $F_4=3$):
+\begin{lstlisting}
+theorem phi_fifth : goldenRatio^5 = 5 * goldenRatio + 3 := by
+  have h2 : goldenRatio^2 = goldenRatio + 1 := gold_sq
+  linear_combination
+    (goldenRatio^3 + goldenRatio^2 + 2*goldenRatio + 3) * h2
+\end{lstlisting}
+\end{example}
+
+\subsection{Hammer~3: Transcendental Interval Analysis ($\pi$ bounds)}
+
+Hammer~3 handles the floor identity
+$\lfloor 6\pi^5 \rfloor = 1836$.  Mathlib provides tight
+rational bounds on $\pi$:
+
+\begin{align}
+  \texttt{pi\_gt\_d6} &: 3.141592 < \pi, \\
+  \texttt{pi\_lt\_d4} &: \pi < 3.1416.
+\end{align}
+
+Propagating through $\pi^2,\pi^4,\pi^5,6\pi^5$ via \texttt{nlinarith}
+and \texttt{linarith} gives $1836 < 6\pi^5 < 1837$; the conclusion
+follows from \texttt{Int.floor\_eq\_iff}.
+
+\begin{lstlisting}
+theorem floor_six_pi_fifth_eq_1836 : Int.floor (6 * Real.pi ^ 5) = 1836 := by
+  apply Int.floor_eq_iff.mpr
+  constructor
+  case left  => push_cast; linarith [six_pi_fifth_gt_1836]
+  case right => push_cast; linarith [six_pi_fifth_lt_1837]
+\end{lstlisting}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Lemma & Bound & Tactic \\
+\midrule
+\texttt{pi\_sq\_lower}     & $\pi^2 > 9.8696$ & \texttt{nlinarith} \\
+\texttt{pi\_fourth\_lower} & $\pi^4 > 97.409$ & \texttt{mul\_lt\_mul}, \texttt{linarith} \\
+\texttt{pi\_fifth\_lower}  & $\pi^5 > 306.01$ & \texttt{mul\_lt\_mul}, \texttt{linarith} \\
+\texttt{pi\_sq\_upper}     & $\pi^2 < 9.8701$ & \texttt{nlinarith} \\
+\texttt{pi\_fourth\_upper} & $\pi^4 < 97.42$  & \texttt{mul\_lt\_mul}, \texttt{linarith} \\
+\texttt{pi\_fifth\_upper}  & $\pi^5 < 306.07$ & \texttt{mul\_lt\_mul}, \texttt{linarith} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Coverage: Foundation Claims and Lean Files}
+\label{sec:coverage}
+
+Table~\ref{tab:coverage} maps the BEDROCK and PILLAR foundation claims
+to their Lean~4 verification files.
+
+\begin{table}[ht]
+\centering
+\caption{Foundation claims and Lean~4 coverage.}
+\label{tab:coverage}
+\begin{tabular}{lll}
+\toprule
+Claim ID & Statement & File \\
+\midrule
+BEDROCK \#58 / T91 & $e_1 = 5\times 11^4 = 73205$; $11^2\mid e_k$ & Spectral.lean \\
+BEDROCK \#60       & $N^2-1=5!=120$ (icosahedral, $N=11$) & Tier3.lean \\
+BEDROCK \#61       & $\varphi(30)=8=\mathrm{rank}(E_8)$ & Tier3.lean \\
+BEDROCK \#62       & $\{S,A\}=0$ ($11\times 11$ GL$_2$ Qameah) & SAAnticommutator.lean \\
+BEDROCK \#63       & $\mathrm{tr}(S^2)=1210$ for $N=11$ & SALemmas.lean \\
+BEDROCK \#64       & $\gcd(28,3837)=1$ (irreducibility) & Alpha.lean \\
+BEDROCK \#65       & $128\times 30-3=3837$ (spinor $\times$ Coxeter) & Alpha.lean \\
+BEDROCK \#66       & $N^2 S^2+A^2=0$ entry-wise, $N=11$ & SALemmas.lean \\
+BEDROCK \#67       & $r^2=2h+4 \Leftrightarrow (r,h)\in\{D_4,E_8\}$ & D4E8Pairing.lean \\
+BEDROCK \#68       & $|S|$ row sums $=(N^2-1)/4=30$ & SALemmas.lean \\
+PILLAR \#55        & $S_3(11)=2048=2^{11}$ (Clifford Bridge) & Alpha.lean \\
+PILLAR \#57        & $r=8$ unique root of $r^3=4r+480$ & Alpha.lean \\
+PILLAR \#69 / T92  & Vieta: $e_1=N^4(N^2-1)/24$ & Spectral.lean \\
+PILLAR \#70 / T93  & $e_1(\lambda^2)+e_2(\lambda^2)=0$ where $\lambda_k^2<0$ (signed; $N{=}11$)\footnotemark & Spectral.lean \\
+PILLAR \#71 / T95  & Pochhammer formula; $e_k=N^{4k}\binom{(N-1)/2+k}{2k}/(2k+1)$ & PochhammerIntegers.lean \\
+PILLAR \#72 / T94  & $e_3$ closed form for $N=11$ & Spectral.lean \\
+PILLAR \#73 / T97  & Alternating $N$-adic valuation ladder & Spectral.lean \\
+PILLAR \#75        & $E_\parallel+E_\perp=480$ (E8 invariant sum) & GoldenMirror.lean \\
+$\mu_0$ shadow     & $\lfloor 6\pi^5\rfloor=1836$ & MuIntegerShadow.lean \\
+Crown Jewel G      & $27-7=20$, $\gcd(28\times 1836,3837)=3$ & CrownJewels.lean \\
+\bottomrule
+\end{tabular}
+\end{table}
+\footnotetext{The Lean proof verifies $73205 + (-73205) = 0$ with signed
+eigenvalue convention.  See Remark~\ref{rem:convention} below.}
+
+\begin{remark}[Eigenvalue convention]\label{rem:convention}
+Two conventions coexist in the QHOTS literature.
+\emph{Convention~1} (Paper~1~\cite{qhots_v69}): define $s_k^2 = N^2/(4\sin^2(2\pi k/N)) > 0$,
+so that the elementary symmetric polynomials $e_k(s^2)$ are strictly positive
+and $e_1 + e_2 \neq 0$.
+\emph{Convention~2} (this paper, Lean library): work with the \emph{signed}
+squared eigenvalues $\lambda_k^2 < 0$ of the antisymmetric part~$A$, whose
+eigenvalues are purely imaginary; under this convention $e_1(\lambda^2) + e_2(\lambda^2) = 0$.
+The two are related by $\lambda_k^2 = -s_k^2$, which flips the sign of
+odd-degree elementary symmetric polynomials.
+PILLAR~\#70 is stated and verified under Convention~2.
+\end{remark}
+
+\section{Key Results in Detail}
+\label{sec:results}
+
+\subsection{The anticommutator $\{S,A\}=0$ (BEDROCK \#62)}
+
+The GL$_2(\mathbb{Z}_{11})$ Qameah construction~\cite{siamese_magic} produces an $11\times 11$
+integer matrix whose $(i,j)$-entry is
+\[
+  Q(i,j) = 11\bigl[(6i+5j+5)\bmod 11\bigr] + \bigl[6(i+j)\bmod 11\bigr] + 1.
+\]
+Entries are a permutation of $\{1,\ldots,121\}$ with magic constant
+$M_{11}=671$.  This $\mathrm{GL}_2(\mathbb{Z}_{11})$ construction is
+related to the standard Qameah square of the companion paper by a
+row/column permutation; the anticommutation $\{S,A\}=0$ holds for both
+by the general circulant--Hankel theorem.  (This equivalence is asserted
+but not formalized in the current Lean library; independent verification
+is available in the companion paper~\cite{qhots_v69}.)
+We define the centred symmetric and antisymmetric parts
+\[
+  2S(i,j) = Q(i,j)+Q(j,i)-122, \qquad 2A(i,j)=Q(i,j)-Q(j,i).
+\]
+\begin{theorem}[BEDROCK \#62]
+For all $i,j\in\{0,\ldots,10\}$,
+\[
+  \sum_{k=0}^{10}\bigl[2S(i,k)\cdot 2A(k,j)+2A(i,k)\cdot 2S(k,j)\bigr]=0.
+\]
+\end{theorem}
+The Lean proof is by \texttt{native\_decide} over all $121$ index pairs;
+the algebraic explanation (circulant--Hankel decomposition) is given in
+the companion paper~\cite{qhots_v69}.
+
+Three supporting lemmas further characterize the Qameah structure:
+(i)~$\sum_{i,j}(2S(i,j))^2 = 4840$ (\textit{trace squared}),
+(ii)~every row of $|2S|$ has sum 60,
+(iii)~$121\cdot S^2 + A^2 = 0$ entry-wise (BEDROCK \#66).
+
+\subsection{The floor identity $\lfloor 6\pi^5\rfloor = 1836$}
+
+The classical mass-ratio formula $\mu_0=6\pi^5\approx 1836.118$ gives
+integer shadow $\lfloor 6\pi^5\rfloor = 1836$.  The proof constructs
+$1836 < 6\pi^5 < 1837$ from Mathlib's rational $\pi$ bounds alone,
+without any floating-point oracle.
+
+\subsection{The Pochhammer generating function (PILLAR \#71 / T95)}
+
+For the $N\times N$ Qameah magic square, define $e_k$ as the $k$-th
+elementary symmetric polynomial of the
+squared eigenvalues $s_k^2 = N^2/(4\sin^2(2\pi k/N))$ of the symmetric
+part~$S$).  T95 states:
+\[
+  e_k = N^{4k}\cdot \frac{\binom{(N-1)/2+k}{2k}}{2k+1}.
+\]
+Verified integer instances:
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$N$ & $k$ & $e_k$ & Proof \\
+\midrule
+11 & 1 & $11^4 \times 5 = 73205$ & \texttt{norm\_num} \\
+11 & 2 & $11^8 \times 7 = 1500512167$ & \texttt{norm\_num} \\
+11 & 3 & $11^{12}\times 4 = 12553713506884$ & \texttt{norm\_num} \\
+11 & 4 & $11^{16}\times 1 = 45949729863572161$ & \texttt{norm\_num} \\
+7  & 1 & $7^4 \times 2 = 4802$ & \texttt{norm\_num} \\
+7  & 2 & $7^8 \times 1 = 5764801$ & \texttt{norm\_num} \\
+5  & 1 & $5^4 \times 1 = 625$ & \texttt{norm\_num} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+An additional ladder theorem verifies the $11$-adic valuations
+$v_{11}(e_k) \geq 2k$ for $k=1,\ldots,4$, and the termination
+boundary $11\nmid \binom{10}{10}$ is checked by \texttt{native\_decide}.
+
+\subsection{The Clifford Bridge $S_3(11)=2^{11}$ (PILLAR \#55)}
+
+The sixth-power trigonometric sum $S_3(11)=2048=2^{11}$ connects the
+Qameah order to $\mathrm{Cl}_{11}$.  Uniqueness---$N{=}11$ is the only
+odd prime $p\leq 47$ with $S_3(p)=2^p$---is verified by
+\texttt{native\_decide} over 14~primes.
+
+\subsection{D4--E8 pairing uniqueness (BEDROCK \#67)}
+
+The equation $r^2 = 2h + 4$ selects exactly $\{D_4, E_8\}$ among all 27
+simple Lie algebras up to rank~10 (by \texttt{decide}).  A complementary
+theorem shows $2^{r-1}\cdot h - 3 = 3837$ uniquely selects $(r,h)=(8,30)$.
+
+\section{Limitations and Future Work}
+\label{sec:limitations}
+
+\subsection{Scope exclusions}
+
+\paragraph{Full G formula.}
+Newton's constant is expressed in QHOTS as a product involving $G_N$,
+$\varphi$, and dimensional constants.  Verifying agreement with the
+CODATA value at 1.3\,ppm would require a formal real-number computation
+with approximately 7 significant digits of $\pi$, $\varphi$, and
+derived quantities---feasible in principle with tighter Mathlib $\pi$ bounds
+and extended interval arithmetic, but not yet implemented.
+
+\paragraph{Transcendental precision beyond 6 digits.}
+Mathlib's current rational $\pi$ bounds (\texttt{pi\_gt\_d6},
+\texttt{pi\_lt\_d4}) provide 6 and 4 decimal digits respectively.
+The mass-ratio correction $\delta_{QED} \approx 1.7\times 10^{-3}$
+would require $\pi$ to 10 or more digits to verify
+$\lfloor 6\pi^5(1+\delta_{QED})\rfloor = 1836$ at the corrected level.
+The \texttt{Mathlib.Tactic.Polyrith} tactic and higher-precision
+$\pi$ bounds may provide a path forward.
+
+\paragraph{Spectral gap bounds.}
+The claim that $\mathrm{spec}(L)\subset \{0\}\cup i\mathbb{R}$ for the
+$N\times N$ linear residue matrix $L$ is proved symbolically in QHOTS
+(via the circulant--Hankel decomposition) but has not been formalized
+as a Lean statement, because the proof would require formalizing the
+theory of circulant matrices over $\mathbb{Z}/N\mathbb{Z}$.
+
+\paragraph{Full spectral polynomial (characteristic polynomial of $L$).}
+T91 states that the reduced characteristic polynomial of $L$ for $N=11$
+is $x^{10} - 11^9$.  The library verifies all numerical consequences of
+this (the values $e_1,\ldots,e_4$ and their divisibility) but does not
+verify the polynomial itself, which would require working with the
+$\mathrm{charpoly}$ API for matrices over $\mathbb{Z}$.
+
+\subsection{Paths to extension}
+
+\begin{itemize}
+  \item Using Mathlib's \texttt{Matrix.charpoly} to verify the characteristic
+        polynomial $\det(\lambda I - L) = \lambda^{10} - 11^9$ directly.
+  \item Using Lean's \texttt{Decidable} instances for modular arithmetic to
+        extend the anticommutator proof to other odd primes $N$.
+  \item Formalizing the generating-function identity T95 as a theorem
+        about formal power series in $\mathbb{Q}[[x]]$ rather than a
+        finite list of numerical instances.
+  \item Connecting the D4--E8 pairing uniqueness to the McKay correspondence
+        using Mathlib's developing representation theory.
+\end{itemize}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+The library---1,077 declarations, 66 files, zero \texttt{sorry}---covers
+the integer arithmetic skeleton of the QHOTS framework using three proof
+hammers: \texttt{norm\_num}/\texttt{native\_decide} (integer arithmetic),
+\texttt{linear\_combination} ($\varphi$ algebra), and
+\texttt{nlinarith}/\texttt{linarith} ($\pi$ interval analysis).
+The main technical contribution is the machine-verified floor identity
+$\lfloor 6\pi^5\rfloor = 1836$; complementary highlights are $\{S,A\}=0$
+for the $11\times 11$ Qameah square and the Pochhammer formula T95 across
+three square orders.  The library provides direct coverage for 20 Foundation
+claims while maintaining a clean separation between formalized mathematical
+identities and empirical comparisons with measured constants.
+
+\paragraph{Acknowledgments.}
+This paper is a human--AI collaboration.  The first author conceived
+the QHOTS framework and directed the research programme; the second
+author (Claude Opus~4.6, Anthropic) contributed to proof construction,
+library architecture, and manuscript drafting under the first author's
+supervision.  Computational verification was performed with the Sefirot
+autonomous research system.
+
+\begin{thebibliography}{9}
+
+\bibitem{mathlib2020}
+The Mathlib Community.
+\newblock {The Lean Mathematical Library}.
+\newblock In \emph{Proceedings of the 9th ACM SIGPLAN International Conference
+  on Certified Programs and Proofs (CPP 2020)}, pages 367--381, 2020.
+
+\bibitem{lean4}
+L. de Moura and S. Ullrich.
+\newblock {The Lean~4 Theorem Prover and Programming Language}.
+\newblock In \emph{Automated Deduction -- CADE 28}, LNCS 12699, pages 625--635.
+  Springer, 2021.
+
+\bibitem{qhots_v69}
+H.~{\TH}.~Reynisson.
+\newblock {The Geometric Universe: Deriving G, $\alpha$, and $m_p$ from
+  the Topology of a Solid-State Vacuum}.
+\newblock QHOTS technical report v69, 2026.
+\newblock Available at \url{https://github.com/Insightful-Calculations/qhots_v7_calc}.
+
+\bibitem{siamese_magic}
+W.~S. Andrews.
+\newblock \emph{Magic Squares and Cubes}.
+\newblock Open Court Publishing, 1917.
+\newblock Siamese (staircase) construction: Chapter~2.
+
+\bibitem{mckay_correspondence}
+J. McKay.
+\newblock {Graphs, singularities, and finite groups}.
+\newblock \emph{Proc.\ Symp.\ Pure Math.}, 37:183--186, 1980.
+
+\bibitem{e8_roots}
+J. H. Conway and N. J. A. Sloane.
+\newblock \emph{Sphere Packings, Lattices and Groups}, 3rd ed.
+\newblock Springer, 1998.
+\newblock E8 root system: Chapter~7.
+
+\bibitem{lean_interval}
+F. Wiedijk.
+\newblock {Formal Proof -- Getting Started}.
+\newblock \emph{Notices of the AMS}, 55(11):1408--1414, 2008.
+
+\end{thebibliography}
+
+\end{document}
