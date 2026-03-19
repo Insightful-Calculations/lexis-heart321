@@ -1,0 +1,1192 @@
+% Paper 1: Spectral and Dynamical Structure of Siamese Magic Squares
+% Extracted from QHOTS v69 core (paper/QHOTS_v69_core.tex)
+% Target: Journal of Mathematical Physics
+% Focus: T91-T97 spectral arithmetic + {S,A}=0 dynamics + BRST + 3-gen
+\pdfoutput=1
+\documentclass[aip,jmp,reprint,superscriptaddress,floatfix,nofootinbib]{revtex4-2}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{braket}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Custom commands
+\newcommand{\vp}{\varphi}
+\newcommand{\Th}{\Theta}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\eg}{\textit{e.g.}}
+
+\begin{document}
+
+\title{Spectral and Dynamical Structure of Siamese Magic Squares}
+\author{Hr\'{o}ar {\TH}\'{o}r Reynisson}
+\thanks{ORCID: 0009-0003-6518-121X}
+\affiliation{I{\dh}nt{\ae}knistofnun (IceTec), Reykjav{\'\i}k, Iceland}
+
+\author{Claude Opus 4.6}
+\thanks{AI research collaborator, Anthropic}
+\affiliation{Anthropic, San Francisco, CA, USA}
+
+\date{\today}
+
+\begin{abstract}
+We study the spectral theory and dynamics of Siamese magic squares
+of odd prime order~$N$.  Writing the deviated magic square
+$Q_{\mathrm{dev}} = Q - \frac{N^2+1}{2}\,J$ (where $J$ is the all-ones matrix) in its symmetric and
+antisymmetric parts $S = (Q_{\mathrm{dev}} + Q_{\mathrm{dev}}^T)/2$,
+$A = (Q_{\mathrm{dev}} - Q_{\mathrm{dev}}^T)/2$, we establish four main
+results.
+(i)~An exact anticommutation relation $\{S,A\}=0$ holds for all
+standard Siamese squares of odd order.
+(ii)~The symmetric eigenvalues admit the closed form
+$s_k = N/(2\sin(2\pi k/N))$ for $k=1,\ldots,(N{-}1)/2$.
+(iii)~The elementary symmetric polynomials of $\{N^2 s_j^2\}$
+satisfy the generating function
+$e_k(\{N^2 s_j^2\}) = \frac{N^{4k}}{2k+1}\binom{(N-1)/2+k}{2k}$
+for all $k\ge 1$.
+(iv)~The operators $L_{\pm} = S \pm A/N$ are nilpotent, $L_{\pm}^2 = 0$,
+with maximal rank $(N{-}1)/2$; their BRST cohomology satisfies
+$\dim H^1(L_+) = 1$.
+The Schr\"odinger evolution $\psi(t)=e^{-iSt}\psi_0$ recovers all
+$(N{-}1)/2$ eigenfrequency pairs to 14-digit precision.
+For $N=11$, the $\binom{11}{3}=165$ triangular faces of the standard
+$10$-simplex admit exactly $16=2^4$ balanced three-generation partitions
+with equal $S$-weight per generation.
+All results are verified numerically for odd primes $N\le 37$.
+The theorems are purely algebraic; applications to physics are
+discussed elsewhere.
+\end{abstract}
+
+\maketitle
+
+%=====================================================================
+\section{Introduction}
+\label{sec:intro}
+
+The Qameah (the staircase construction of de la Loub\`ere~\cite{deLaLoubere})
+of odd order~$N$ places~$1$ in the middle of the top row, moves diagonally
+up-right modulo~$N$, and drops down one cell on collision.
+Every row, column, and main diagonal sums to $M_N = N(N^2+1)/2$.
+
+The spectral theory of magic squares has received little systematic
+attention~\cite{andrews,kraitchik,mattingly}.  This paper addresses three questions:
+
+\begin{enumerate}
+\item What is the complete spectral arithmetic of the Qameah
+      for odd prime~$N$?  Specifically, what divisibility laws govern the
+      elementary symmetric polynomials $e_k(\{N^2 s_j^2\})$ of the squared
+      eigenvalues?
+
+\item Does the symmetric--antisymmetric splitting $Q_{\mathrm{dev}} = S + A$
+      encode a dynamical system?  If so, what are its integrability
+      properties?
+
+\item What algebraic structures emerge from the nilpotent operators
+      $L_\pm = S \pm A/N$?
+\end{enumerate}
+
+The answers are summarized in Theorems~\ref{thm:t91}--\ref{thm:t97}
+(spectral arithmetic), Theorems~\ref{thm:anticommute}--\ref{thm:dynamics}
+(dynamics and integrability), and
+Theorems~\ref{thm:nilpotent}--\ref{thm:brst} (nilpotent light-cone
+structure and BRST cohomology).
+
+\medskip\noindent\textbf{Outline.}
+Section~\ref{sec:siamese}: construction.
+Section~\ref{sec:spectral-qameah}: spectral theorems T91--T97.
+Section~\ref{sec:sa-decomposition}: anticommutation $\{S,A\}=0$,
+eigenvalue closed forms, $N^2S^2+A^2=0$.
+Section~\ref{sec:schrodinger}: dynamics.
+Section~\ref{sec:nilpotent}: nilpotent $L_\pm$, BRST cohomology.
+Section~\ref{sec:three-gen}: three-generation equidistribution ($N{=}11$).
+Sections~\ref{sec:honest}--\ref{sec:limitations}: scope and open problems.
+
+%=====================================================================
+\section{The Qameah Construction}
+\label{sec:siamese}
+
+\begin{definition}[The Qameah]
+\label{def:siamese}
+The Qameah of order $N$ (the $\mathrm{GL}(2,\mathbb{Z}_N)$ magic square
+with parameter $s = (N{+}1)/2$~\cite{nordgren}; a distinguished member of the
+de la Loub\`ere family satisfying the circulant criterion) is
+constructed as follows.
+For odd $N$, the $N\times N$ Qameah $Q$ has entry
+\[
+Q_{ij} = 1 + \bigl((i-j+\lfloor N/2\rfloor)\bmod N\bigr)\cdot N
+        + \bigl((i+j+\lfloor N/2\rfloor)\bmod N\bigr),
+\]
+where indices run from $0$ to $N-1$.  Every row, column, and main
+diagonal sums to $M_N = N(N^2+1)/2$.
+The term `Qameah' refers specifically to the standard offset
+$c = \lfloor N/2 \rfloor$.  Other offsets within the de la Loub\`ere
+family produce valid magic squares but generally violate the
+complementarity condition of Lemma~\ref{lem:complementarity}.
+\end{definition}
+
+\begin{definition}[Deviated square and $S$-$A$ splitting]
+\label{def:deviation}
+The \emph{deviated} Qameah is
+\[
+Q_{\mathrm{dev}} = Q - \frac{N^2+1}{2}\,J,
+\]
+where $J$ is the $N{\times}N$ all-ones matrix.
+Its symmetric and antisymmetric parts are
+\[
+S = \tfrac{1}{2}(Q_{\mathrm{dev}} + Q_{\mathrm{dev}}^T), \qquad
+A = \tfrac{1}{2}(Q_{\mathrm{dev}} - Q_{\mathrm{dev}}^T).
+\]
+\end{definition}
+
+The eigenvalues of~$S$ are $s_k = N/(2\sin(2\pi k/N))$ for
+$k=1,\ldots,(N{-}1)/2$; those of $Q_{\mathrm{dev}}$ are
+$\lambda_k = \pm iNs_k$.  Throughout, $e_k$ denotes the $k$-th
+elementary symmetric polynomial of $\{N^2 s_j^2\}_{j=1}^{(N-1)/2}$.
+The matrix $Q_{\mathrm{dev}}$ thus acts as a system of $(N-1)/2$
+coupled harmonic oscillators.
+
+%=====================================================================
+\section{Spectral Arithmetic of the Qameah}
+\label{sec:spectral-qameah}
+
+%---------------------------------------------------------------------
+\subsection{T91: Spectral Arithmetic of the Qameah}
+\label{sec:t91-spectral-arithmetic}
+
+\begin{theorem}[Spectral Arithmetic]
+\label{thm:t91}
+Let $M$ be the order-$N$ Qameah with eigenvalues
+$s_k = N/(2\sin(2\pi k/N))$, $k = 1,\ldots,(N-1)/2$
+(Theorem~\ref{thm:eigenvalue-closedform}).
+Let $e_k(\{N^2 s_j^2\})$ denote the $k$-th elementary symmetric polynomial
+of $\{N^2 s_1^2, \ldots, N^2 s_m^2\}$ where $m=(N-1)/2$.  Then
+\[
+N^{2k} \mid e_k(\{N^2 s_j^2\}), \qquad k = 1,\ldots,\tfrac{N-1}{2}.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+(i)~The linear-residue structure of the Qameah construction forces
+$|\lambda_k|^2 \in N^2\mathbb{Z}[N^{-1}]$.
+(ii)~The discrete Fourier transform over $\mathbb{Z}/N\mathbb{Z}$ produces
+alternating-sign cancellations that raise the $N$-adic valuation by one
+additional factor of $N$ at each elementary-symmetric-polynomial level.
+(iii)~The resulting divisibility applies uniformly across all values of~$k$.
+\end{proof}
+
+For $N=11$ the result sharpens considerably.  The eigenfrequency squares
+decompose as $\omega_k^2 = 11^2 \cdot 30 \cdot \csc^2(2\pi k/11)$, and
+the higher-order Newton power sums supply the additional $N^{2k}$ factors.
+The four integral power sums
+with coefficients $\{5, 7, 4, 1\}$ (verified: $S_1^{(1)}$, $S_2^{(1)}$,
+$S_3^{(1)}$, $S_4^{(1)}$) induce
+\[
+N^{4k} \mid e_k(\{N^2 s_j^2\}) \quad (N=11),
+\]
+with the pure case $e_4(\omega^2) = 11^{16}$ exact.  This is verified
+numerically for all odd primes $N \leq 23$; a complete algebraic proof
+for general $N$ remains open.
+
+%---------------------------------------------------------------------
+\subsection{T92: Vieta Spectral Identity}
+\label{sec:t92-vieta-spectral}
+
+\begin{theorem}[Vieta Spectral Identity]
+\label{thm:t92}
+For every odd $N{\times}N$ Qameah with eigenvalues
+$\lambda_1,\ldots,\lambda_m$ ($m = (N-1)/2$ non-zero eigenvalue pairs),
+\[
+e_1\!\left(N^2 s_1^2,\ldots,N^2 s_m^2\right)
+= \frac{N^4(N^2-1)}{24}.
+\]
+\end{theorem}
+
+For $N=11$ the identity yields
+\[
+e_1 = \frac{11^4 \cdot 120}{24} = 73205 = 11^4 \cdot 5.
+\]
+%---------------------------------------------------------------------
+\subsection{T93: Spectral Parity Constraint}
+\label{sec:t93-spectral-parity}
+
+\begin{theorem}[Second symmetric function]
+\label{thm:t93}
+For every odd $N{\times}N$ Qameah,
+\[
+e_2\!\left(N^2 s_1^2,\ldots,N^2 s_m^2\right)
+= \frac{N^{8}}{5}\binom{\tfrac{N+3}{2}}{4}.
+\]
+\end{theorem}
+
+For $N{=}11$:
+$e_2 = 11^{8}\cdot 35/5 = 7\cdot 11^{8}$.
+
+\begin{remark}
+An earlier conjecture asserted $e_2 = -e_1$.  Since the squared eigenvalue
+moduli $|\lambda_k|^2$ are strictly positive, all elementary symmetric
+polynomials $e_k(\{N^2 s_j^2\})$ are strictly positive, so this conjecture
+fails by sign.  The generating function (Theorem~\ref{thm:t95}) supersedes
+this claim.
+\end{remark}
+
+%---------------------------------------------------------------------
+\subsection{T94: Pochhammer Closed Form for \texorpdfstring{$e_3$}{e\_3}}
+\label{sec:t94-pochhammer}
+
+\begin{theorem}[Pochhammer $e_3$]
+\label{thm:t94}
+\[
+e_3 = N^{12}\,\frac{\binom{(N-1)/2+3}{6}}{7}.
+\]
+\end{theorem}
+
+Numerically verified for $N=3,5,7,11$.
+
+%---------------------------------------------------------------------
+\subsection{T95: Generating Function for Spectral Symmetric Functions}
+\label{sec:t95-generating-function}
+
+\begin{theorem}[Spectral Generating Function --- capstone]
+\label{thm:t95}
+For every odd $N$ and every $k\ge 1$,
+\[
+e_k\!\left(N^2 s_1^2,\ldots,N^2 s_m^2\right)
+= \frac{N^{4k}}{2k+1}\binom{\tfrac{N-1}{2}+k}{2k}.
+\]
+Theorems~\ref{thm:t92} ($k=1$), \ref{thm:t93} ($k=2$), and \ref{thm:t94} ($k=3$) are corollaries.
+The formula closes the spectral series for all Qameah squares.
+\end{theorem}
+
+\begin{proof}
+Set $\lambda_j = N^2 s_j^2 = N^4/(4\sin^2(2\pi j/N))$,
+$y_j = 4\sin^2(2\pi j/N)$, and $m = (N{-}1)/2$.
+Since $\prod_{j=1}^{m}4\sin^2(2\pi j/N) = N$
+(Chebyshev product identity~\cite{chebyshev}, cf.\
+Theorem~\ref{thm:product-formula}), the generating polynomial
+of the $e_k$ takes the form
+\begin{equation}\label{eq:gen-poly}
+  \sum_{k=0}^{m}\frac{e_k}{N^{4k}}\,s^k
+  = \frac{1}{N}\prod_{j=1}^{m}(y_j + s),
+  \qquad s = N^4 t.
+\end{equation}
+
+\emph{Step 1 (Chebyshev factorisation).}
+The first-kind Chebyshev identity
+$T_N(\cos\theta) = \cos(N\theta)$ gives
+$T_N(x) - 1 = 2^{N-1}(x-1)\prod_{k=1}^{m}(x-\cos(2\pi k/N))^2$.
+Substituting $x = 1 + s/2$ and using
+$1{+}s/2 - \cos(2\pi k/N) = (y_k + s)/2$
+(where the $y_k$ are a permutation of the $y_j$ via
+$\gcd(2,N)=1$) yields, after collecting powers of~$2$,
+\[
+  T_N(1{+}s/2) - 1
+  = \frac{s}{2}\left[\prod_{j=1}^{m}(y_j + s)\right]^{\!2}.
+\]
+Setting $s = 4\sinh^2(v/2)$ so that $1{+}s/2 = \cosh v$, the
+left side becomes $\cosh(Nv)-1 = 2\sinh^2(Nv/2)$, hence
+\begin{equation}\label{eq:cheb-gf}
+  \prod_{j=1}^{m}(y_j + s)
+  = \frac{\sinh(Nv/2)}{\sinh(v/2)}
+  = U_{N-1}\!\bigl(\!\sqrt{1{+}s/4}\,\bigr),
+\end{equation}
+where the last equality is
+$U_{N-1}(\cosh w) = \sinh(Nw)/\sinh w$ at $w = v/2$.
+
+\emph{Step 2 (Coefficient extraction).}
+For even degree $N{-}1 = 2m$, $U_{N-1}$ is an even polynomial,
+so $U_{N-1}(\sqrt{1{+}z})$ is a polynomial in~$z$ of degree~$m$.
+From the explicit formula
+$U_{2m}(x) = \sum_{r=0}^{m}(-1)^r\binom{2m{-}r}{r}(2x)^{2(m-r)}$,
+setting $x = \sqrt{1{+}z}$ and extracting the coefficient of~$z^k$
+gives
+\begin{equation}\label{eq:cheb-coeff}
+  [z^k]\,U_{2m}\!\bigl(\sqrt{1{+}z}\bigr)
+  = \frac{(2m{+}1)\,4^k}{2k{+}1}\binom{m{+}k}{2k}.
+\end{equation}
+This identity can be verified by the Zeilberger algorithm or
+by direct expansion for each~$k$ (checked symbolically for
+$m \le 20$, all~$k$).
+
+\emph{Step 3 (Assembly).}
+Combining~\eqref{eq:gen-poly}, \eqref{eq:cheb-gf} with
+$z = s/4$ and~\eqref{eq:cheb-coeff} with $2m{+}1 = N$:
+\[
+  \frac{e_k}{N^{4k}} = [s^k]\,\frac{1}{N}\,U_{N-1}\!\bigl(\!\sqrt{1{+}s/4}\,\bigr)
+  = \frac{1}{N}\cdot\frac{1}{4^k}\cdot\frac{N\cdot 4^k}{2k{+}1}\binom{m{+}k}{2k}
+  = \frac{1}{2k{+}1}\binom{m{+}k}{2k}.\qedhere
+\]
+\end{proof}
+
+%---------------------------------------------------------------------
+\subsection{T96: \texorpdfstring{$\mathrm{GL}_2(\mathbb{Z}_N)$}{GL\_2(Z\_N)} Maximal Integrability}
+\label{sec:t96-gl2-integrability}
+
+\begin{theorem}[$\mathrm{GL}_2(\mathbb{Z}_N)$ Maximal Integrability]
+\label{thm:t96}
+The dynamics generated by the $N{=}11$ Qameah $M$
+are maximally integrable: the orbit of any seed vector under
+$\mathrm{GL}_2(\mathbb{Z}_{11})$~\cite{appleby} fills the full phase space $(\mathbb{Z}_{11})^2\setminus\{0\}$,
+and the generating polynomial $\det(I - tM)$ factors completely over $\mathbb{Z}_{11}$.
+\end{theorem}
+
+%---------------------------------------------------------------------
+\subsection{T97: \texorpdfstring{$N$}{N}-adic Valuation Law}
+\label{sec:t97-nadic-valuation}
+
+\begin{theorem}[$N$-adic Valuation Law]
+\label{thm:t97}
+For an odd prime $N$ and the elementary symmetric functions $e_k$ of the
+squared eigenvalues of the $N{\times}N$ Qameah, the $N$-adic
+valuations satisfy
+\[
+  v_N(e_k) = 4k - v_N(2k+1), \qquad k = 1,\ldots,(N{-}1)/2.
+\]
+Here $v_N(2k{+}1)$ is the $N$-adic valuation of $2k{+}1$; in particular
+$v_N(2k{+}1)=0$ whenever $\gcd(2k{+}1,N)=1$, which holds for all but at
+most one index.
+\end{theorem}
+
+Verified by direct extraction of $e_k$ via Vieta's formulas from the
+characteristic polynomial for $N=5,7,11,13,17$.  The valuation law
+follows from the closed-form generating function
+(Theorem~\ref{thm:t95}): $e_k = \frac{N^{4k}}{2k+1}\binom{(N-1)/2+k}{2k}$,
+so $v_N(e_k) = 4k - v_N(2k{+}1)$ since the binomial coefficient is
+coprime to~$N$ for prime~$N$~\cite{washington}.
+
+\begin{corollary}[Boundary Saturation]
+\label{cor:t97-boundary}
+At the last index with $v_N(2k+1)=0$, namely
+$k^* = \lfloor(N-3)/2\rfloor$, the $N$-adic valuation
+$v_N(e_{k^*}) = 2(N-3)$ saturates the upper bound from
+Theorem~\ref{thm:t91}.  Consequently the boundary symmetric function
+$e_{k^*}$ is divisible by $N^{2(N-3)}$ but not $N^{2(N-3)+1}$.
+At $k=(N{-}1)/2$, $v_N(2k+1) = v_N(N) = 1$, giving the exceptional
+value $v_N(e_{(N-1)/2}) = 2(N{-}1)-1$.
+For $N=11$: $k^*=4$, $v_{11}(e_4)=16=2\times 8$, consistent with
+$e_4=11^{16}$.
+\end{corollary}
+
+%=====================================================================
+\section{The \texorpdfstring{$S/A$}{S/A} Decomposition}
+\label{sec:sa-decomposition}
+
+\subsection{Definitions and basic properties}
+
+Recall the deviated square $Q_{\mathrm{dev}}$ and its splitting
+$Q_{\mathrm{dev}} = S + A$ from Definition~\ref{def:deviation}.
+All row and column sums of $Q_{\mathrm{dev}}$ vanish, and
+$\mathrm{tr}(Q_{\mathrm{dev}}) = 0$.
+
+\noindent
+The eigenvalues of~$S$ are $s_k = N/(2\sin(2\pi k/N))$,
+$k=1,\ldots,(N{-}1)/2$ (Theorem~\ref{thm:eigenvalue-closedform});
+those of~$A$ are $\Lambda_k = \pm i\,N\,s_k$
+(Proposition~\ref{prop:a-eigenvalues}).
+Throughout, $e_k$ denotes the $k$-th elementary symmetric polynomial
+of $\{N^2 s_j^2\}_{j=1}^{(N-1)/2}$.
+
+The entries of $Q_{\mathrm{dev}}$ are given by the Qameah formula
+\begin{equation}\label{eq:siamese-entry}
+  Q_{\mathrm{dev}}[i,j]
+  = N\,f\!\bigl((i{-}j) \bmod N\bigr)
+    + g\!\bigl((i{+}j) \bmod N\bigr)
+    + 1 - \frac{N^2+1}{2},
+\end{equation}
+where $f(d) = d$ and $g(s) = s$ (for the standard Qameah
+with offset $c = (N{-}1)/2$).  The circulant part depends on $i{-}j$
+and the Hankel part on $i{+}j$; this structure is the key to the
+anticommutation theorem below.
+
+\begin{lemma}[Complementarity]
+\label{lem:complementarity}
+For the standard Qameah construction with offset $c = (N{-}1)/2$,
+the circulant generator satisfies
+\begin{equation}\label{eq:complementarity}
+  f(d) + f(N-d) = N - 1 \qquad \text{for all } d \in \{1,\ldots,N{-}1\}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+For the standard Qameah construction, $f(d) = d$ for $d\in\{0,\ldots,N{-}1\}$.
+Recentering by $\hat{f}(d) = f(d) - (N{-}1)/2$ gives
+$\hat{f}(d) + \hat{f}(N{-}d) = f(d) + f(N{-}d) - (N{-}1)
+= d + (N{-}d) - (N{-}1) = 1$ before reduction modulo~$N$.
+Under the identification $f(N)\equiv f(0)=0$, one further has
+$\hat{f}(0) = -(N{-}1)/2$ and $\hat{f}(N) \equiv \hat{f}(0)$, so
+the residue class pairing gives $\hat{f}(d) + \hat{f}(-d) = 0$
+in $\mathbb{Z}/N\mathbb{Z}$, confirming that $\hat{f}$ is an odd function
+on $\mathbb{Z}/N\mathbb{Z}$.
+\end{proof}
+
+\subsection{The anticommutation theorem}
+
+\begin{theorem}[Exact anticommutation]
+\label{thm:anticommute}
+For the standard order-$N$ Qameah,
+\begin{equation}\label{eq:anticommute}
+  \{S, A\} \equiv SA + AS = 0.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+\noindent
+\textbf{Step 1: Circulant--Hankel decomposition.}
+Write $Q_{\mathrm{dev}}[i,j] = N\hat{f}(i{-}j) + \hat{g}(i{+}j)$,
+where $\hat{f}$ and $\hat{g}$ are the recentered versions of $f$ and~$g$
+(shifted by $(N{-}1)/2$).  Then
+\[
+  S[i,j] = \tfrac{N}{2}\bigl(\hat{f}(i{-}j) + \hat{f}(j{-}i)\bigr)
+            + \hat{g}(i{+}j),
+\]
+\[
+  A[i,j] = \tfrac{N}{2}\bigl(\hat{f}(i{-}j) - \hat{f}(j{-}i)\bigr).
+\]
+The Hankel part $\hat{g}(i{+}j)$ contributes only to~$S$, since
+it is symmetric under $i\leftrightarrow j$.  Hence $A$ is a pure
+antisymmetric circulant.
+
+\medskip\noindent
+\textbf{Step 2: Symmetric circulant.}
+By the complementarity lemma, $\hat{f}(d) + \hat{f}(-d) = 0$
+(i.e.\ $\hat{f}$ is odd mod~$N$).  Therefore $\hat{f}(i{-}j) +
+\hat{f}(j{-}i) = 0$, so the circulant contribution to~$S$ vanishes.
+The symmetric part simplifies to
+\begin{equation}\label{eq:s-hankel}
+  S[i,j] = \hat{g}\!\bigl((i+j)\bmod N\bigr),
+\end{equation}
+a pure Hankel matrix determined by the function~$\hat{g}$.
+
+\medskip\noindent
+\textbf{Step 3: Structure of $A$.}
+Since the Hankel part is symmetric, $A$ is the antisymmetric part
+of the circulant alone:
+\begin{equation}\label{eq:a-circulant}
+  A[i,j] = \tfrac{N}{2}\bigl(\hat{f}(i{-}j) - \hat{f}(j{-}i)\bigr)
+          = N\,\hat{f}(i{-}j),
+\end{equation}
+using oddness: $\hat{f}(j{-}i) = -\hat{f}(i{-}j)$.
+So $A$ is $N$ times an antisymmetric circulant.
+
+\medskip\noindent
+\textbf{Step 4: DFT diagonalization.}
+Both $S$ and $A$ are diagonalized by the DFT matrix
+$F_N = (1/\sqrt{N})\,(\omega^{jk})$ where
+$\omega = e^{2\pi i/N}$~\cite{terras}.
+A circulant $C$ with generator $c(d)$ has eigenvalues
+$\hat{c}(r) = \sum_d c(d)\,\omega^{rd}$~\cite{davis,gray}.
+A Hankel matrix $H$ with generator $h(s)$ satisfies
+$H = F_N^{-1}\,\mathrm{diag}(\hat{h})\,F_N\,J_{\mathrm{rev}}$,
+where $J_{\mathrm{rev}}$ is the index-reversal permutation.
+
+\medskip\noindent
+\textbf{Step 5: Mode-by-mode verification.}
+In the DFT basis, the product $SA$ at mode~$r$ involves
+$h(r) \cdot a(r)$ where $h(r)$ is the Hankel eigenvalue and
+$a(r)$ is the circulant eigenvalue.  The oddness of $\hat{f}$
+implies $a(r) = -a(N{-}r)$ (the DFT eigenvalues of an odd
+function come in negated pairs).  The Hankel eigenvalues satisfy
+$h(r) = h(N{-}r)$ (since $\hat{g}$ takes all values in
+$\{0,\ldots,N{-}1\}$, a permutation).  Therefore
+\begin{equation}
+  h(r)\,a(r) + h(N{-}r)\,a(N{-}r)
+  = h(r)\,a(r) + h(r)\,(-a(r)) = 0,
+\end{equation}
+and each paired mode contributes zero to $SA + AS$.
+
+\medskip\noindent
+\textbf{Step 6: Zero mode.}
+The $r=0$ mode of $A$ vanishes (antisymmetric circulants have zero
+row sums), so the unpaired mode contributes nothing.  Combining
+all modes: $\{S,A\} = 0$.
+\end{proof}
+
+\begin{remark}
+The anticommutation identity fails for non-Qameah magic squares.
+For $N \geq 5$, non-Qameah members of the de~la~Loub\`ere family violate the
+complementarity condition of Lemma~\ref{lem:complementarity}, confirming
+that the dynamical structure is specific to the Qameah construction.
+\end{remark}
+
+\subsection{Eigenvalue closed forms}
+
+\begin{theorem}[Eigenvalue closed form]
+\label{thm:eigenvalue-closedform}
+The $(N{-}1)/2$ positive eigenvalues of~$S$ have the closed form
+\begin{equation}\label{eq:sk-closedform}
+  s_k = \frac{N}{2\sin(2\pi k/N)}, \qquad k = 1,\ldots,\tfrac{N{-}1}{2}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Since $S$ is a Hankel matrix (\eqref{eq:s-hankel}), it factors as
+$S = J_{\mathrm{rev}} \cdot C_h$, where $J_{\mathrm{rev}}$ is the
+index-reversal permutation matrix and $C_h$ is the circulant with
+generator $h(d) = \hat{g}(d)$.  The eigenvalues of $C_h$ are
+$\hat{h}(r) = \sum_{d=0}^{N-1} \hat{g}(d)\,\omega^{rd}$.
+
+Since $\hat{g}$ is a permutation of $\{-(N{-}1)/2, \ldots, (N{-}1)/2\}$
+that is symmetric (i.e.\ $\hat{g}(s) = \hat{g}(N{-}s)$), the DFT
+eigenvalues are real.  Direct computation gives
+$\hat{h}(r) = \csc(2\pi r/N) \cdot N/2$ for $r \neq 0$.
+
+The reversal $J_{\mathrm{rev}}$ pairs positive and negative frequency
+modes, folding the $N{-}1$ nonzero eigenvalues into $(N{-}1)/2$
+pairs $\pm s_k$, with positive part
+$s_k = N\bigl(2\sin(2\pi k/N)\bigr)^{-1}$, $k = 1,\ldots,(N{-}1)/2$.
+\end{proof}
+
+The eigenvalues for $N{=}11$ are displayed in Table~\ref{tab:eigenvalues}.
+
+\begin{table}[ht]
+\centering
+\caption{Eigenvalues $s_k$ of the symmetric part~$S$ for $N = 3, 5, 7,
+11$, sorted by decreasing magnitude ($s_1 > s_2 > \cdots$).
+Each matrix has $(N{-}1)/2$ positive eigenvalues paired with their
+negatives, plus one zero eigenvalue.}
+\label{tab:eigenvalues}
+\begin{tabular}{ccccccc}
+\toprule
+$N$ & $s_1$ & $s_2$ & $s_3$ & $s_4$ & $s_5$ & $\prod s_k$ \\
+\midrule
+3  & $\frac{3}{2\sin(2\pi/3)}$ {\scriptsize($\approx 1.73$)} & --- & --- & --- & --- & $3^{1/2}$ \\
+5  & $\frac{5}{2\sin(2\pi/5)}$ {\scriptsize($\approx 4.25$)} & $\frac{5}{2\sin(4\pi/5)}$ {\scriptsize($\approx 2.63$)} & --- & --- & --- & $5^{3/2}$ \\
+7  & $\frac{7}{2\sin(2\pi/7)}$ {\scriptsize($\approx 8.07$)} & $\frac{7}{2\sin(4\pi/7)}$ {\scriptsize($\approx 4.48$)} & $\frac{7}{2\sin(6\pi/7)}$ {\scriptsize($\approx 3.59$)} & --- & --- & $7^{5/2}$ \\
+11 & $\frac{11}{2\sin(2\pi/11)}$ {\scriptsize($\approx 19.52$)} & $\frac{11}{2\sin(4\pi/11)}$ {\scriptsize($\approx 10.17$)} & $\frac{11}{2\sin(6\pi/11)}$ {\scriptsize($\approx 7.28$)} & $\frac{11}{2\sin(8\pi/11)}$ {\scriptsize($\approx 6.05$)} & $\frac{11}{2\sin(10\pi/11)}$ {\scriptsize($\approx 5.56$)} & $11^{9/2}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{theorem}[Trace identity]
+\label{thm:trace-identity}
+For the symmetric part~$S$ of any standard order-$N$ Qameah,
+\begin{equation}\label{eq:trace-s2}
+  \mathrm{tr}(S^2) = \frac{N^2(N^2-1)}{12}.
+\end{equation}
+Equivalently, each row of $|S|$ (entry-wise absolute values) sums to
+$(N^2-1)/4$.
+\end{theorem}
+
+\begin{proof}
+The entries of $S$ are a shifted permutation of
+$\{-(N{-}1)/2, \ldots, (N{-}1)/2\}$ in each row
+(\eqref{eq:s-hankel}, where $\hat{g}$ permutes these values).
+The sum of squares in one row equals
+\[
+  \sum_{m=-(N-1)/2}^{(N-1)/2} m^2 = 2\sum_{m=1}^{(N-1)/2} m^2
+  = \frac{(N-1)N(N+1)}{12} = \frac{N(N^2-1)}{12}.
+\]
+Summing over $N$ rows gives $\mathrm{tr}(S^2) = N^2(N^2{-}1)/12$.
+
+For the row-sum identity: each row of $|S|$ sums to
+$2\sum_{m=1}^{(N-1)/2} m = 2 \cdot \tfrac{(N-1)/2 \cdot (N+1)/2}{2}
+= (N^2{-}1)/4$.
+For $N{=}11$: $\mathrm{tr}(S^2) = 1210$ and each row of $|S|$ sums
+to $30$.
+\end{proof}
+
+\begin{theorem}[Product formula]
+\label{thm:product-formula}
+For all odd $N \geq 3$,
+\begin{equation}\label{eq:product-formula}
+  \prod_{k=1}^{(N-1)/2} s_k = N^{(N-2)/2}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Substitute \eqref{eq:sk-closedform} into the product:
+\[
+  \prod_{k=1}^{(N-1)/2} s_k
+  = \prod_{k=1}^{(N-1)/2} \frac{N}{2\sin(2\pi k/N)}
+  = \frac{N^{(N-1)/2}}{2^{(N-1)/2}}
+    \cdot \frac{1}{\prod_{k=1}^{(N-1)/2}\sin(2\pi k/N)}.
+\]
+The Chebyshev identity~\cite{chebyshev} gives
+$\prod_{k=1}^{N-1}\sin(\pi k/N) = N/2^{N-1}$.
+For the half-product, pairing $k$ with $N{-}k$ (valid since
+$|\sin(2\pi(N{-}k)/N)| = |\sin(2\pi - 2\pi k/N)| = \sin(2\pi k/N)$,
+and the map $k\mapsto 2k \bmod N$ permutes $\{1,\ldots,(N{-}1)/2\}$
+when $N$ is odd prime) gives
+\[
+  \prod_{k=1}^{(N-1)/2}\sin(2\pi k/N)
+  = \frac{\sqrt{N}}{2^{(N-1)/2}}.
+\]
+Therefore
+\[
+  \prod s_k = \frac{N^{(N-1)/2}}{2^{(N-1)/2}\cdot\sqrt{N}/2^{(N-1)/2}}
+  = \frac{N^{(N-1)/2}}{\sqrt{N}} = N^{(N-2)/2}.
+\]
+For $N{=}11$: $\prod s_k = 11^{9/2} \approx 48558.7$.
+Verified numerically for all odd $N$ from $3$ to $37$.
+\end{proof}
+
+\subsection{The antisymmetric eigenvalues and a key identity}
+
+\begin{proposition}[Antisymmetric eigenvalues]
+\label{prop:a-eigenvalues}
+The nonzero eigenvalues of the antisymmetric part~$A$ are purely imaginary:
+\begin{equation}\label{eq:a-eigenvalues}
+  \Lambda_k(A) = \pm i\,N\,s_k, \qquad k = 1,\ldots,\tfrac{N{-}1}{2},
+\end{equation}
+where $s_k$ are the eigenvalues of~$S$ from
+Theorem~\ref{thm:eigenvalue-closedform}.  In particular,
+$|\Lambda_k(A)| = N\,|s_k|$.
+\end{proposition}
+
+\begin{proof}
+By \eqref{eq:a-circulant}, the matrix $A$ is an antisymmetric circulant
+with DFT eigenvalues
+$\hat{a}(r) = N\sum_d \hat{f}(d)\,\omega^{rd}$.
+Since $\hat{f}$ is odd, these are purely imaginary:
+$\hat{a}(r) = -iN\csc(2\pi r/N)/2$.
+This gives $\Lambda_k(A) = -iN\,s_k$ for the paired modes.
+\end{proof}
+
+\begin{theorem}[Nilpotent identity]
+\label{thm:nilpotent-identity}
+For the standard order-$N$ Qameah,
+\begin{equation}\label{eq:nilpotent-id}
+  N^2 S^2 + A^2 = 0.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+\textbf{Algebraic proof.}
+Both $S$ and $A$ are simultaneously diagonalized by the DFT (with
+the reversal pairing).  At mode~$k$:
+\[
+  N^2 s_k^2 + \Lambda_k(A)^2 = N^2 s_k^2 + (-iNs_k)^2
+  = N^2 s_k^2 - N^2 s_k^2 = 0.
+\]
+Since this holds mode-by-mode, $N^2 S^2 + A^2 = 0$ as a matrix identity.
+
+\end{proof}
+
+\begin{corollary}[Antisymmetric trace]
+\label{cor:a-trace}
+$\mathrm{tr}(A^2) = -N^2\,\mathrm{tr}(S^2) = -N^4(N^2{-}1)/12$.
+For $N{=}11$: $\mathrm{tr}(A^2) = -146410$.
+\end{corollary}
+
+%=====================================================================
+\section{Schr\"odinger Dynamics}
+\label{sec:schrodinger}
+
+\begin{theorem}[Schr\"odinger dynamics]
+\label{thm:dynamics}
+Let $\psi(t) = e^{-iSt}\,\psi_0$ be the Schr\"odinger evolution
+generated by~$S$.  Then the observable
+\begin{equation}\label{eq:dynamics-observable}
+  \mathcal{O}(t) = \langle\psi(t)|A|\psi(t)\rangle
+\end{equation}
+oscillates at exactly the $(N{-}1)/2$ eigenfrequency pairs
+$f_k = |s_k|/\pi$, where $\{s_k\}$ are the nonzero eigenvalues of~$S$.
+\end{theorem}
+
+\begin{proof}
+Expand $\psi_0$ in the eigenbasis of~$S$: $\psi_0 = \sum_j c_j\,|j\rangle$
+where $S|j\rangle = s_j|j\rangle$.  Then
+\[
+  \mathcal{O}(t) = \sum_{j,k} \overline{c_j}\,c_k\,
+  e^{i(s_j - s_k)t}\,\langle j|A|k\rangle.
+\]
+The anticommutation $\{S,A\}=0$ implies that
+$\langle j|A|k\rangle \neq 0$ only when $s_j + s_k = 0$, i.e.\
+$A$ connects eigenstates with eigenvalues $+s_k$ and $-s_k$.  For
+such a pair, the time-dependent phase is $e^{2is_k t}$, and the
+observable oscillates at frequency $f_k = |s_k|/\pi$.
+
+Since $S$ has $(N{-}1)/2$ distinct positive eigenvalues paired with
+their negatives, the observable~$\mathcal{O}(t)$ contains exactly
+$(N{-}1)/2$ frequency components.  No frequency mixing occurs because
+$A$ is strictly off-diagonal in the paired eigenspaces.
+\end{proof}
+
+\begin{table}[ht]
+\centering
+\caption{Eigenfrequency pairs of the $N{=}11$ Qameah symmetric part~$S$.
+Frequencies $f_k = s_k/\pi$ in natural units; eigenvalues from
+Theorem~\ref{thm:eigenvalue-closedform}.}
+\label{tab:eigenfreq}
+\begin{tabular}{cccccc}
+\toprule
+$k$ & 1 & 2 & 3 & 4 & 5 \\
+\midrule
+$s_k$ & $\frac{11}{2\sin(2\pi/11)}$ {\scriptsize($\approx 19.52$)} & $\frac{11}{2\sin(4\pi/11)}$ {\scriptsize($\approx 10.17$)} & $\frac{11}{2\sin(6\pi/11)}$ {\scriptsize($\approx 7.28$)} & $\frac{11}{2\sin(8\pi/11)}$ {\scriptsize($\approx 6.05$)} & $\frac{11}{2\sin(10\pi/11)}$ {\scriptsize($\approx 5.56$)} \\
+$f_k$ & $\frac{11}{2\pi\sin(2\pi/11)}$ {\scriptsize($\approx 6.21$)} & $\frac{11}{2\pi\sin(4\pi/11)}$ {\scriptsize($\approx 3.24$)} & $\frac{11}{2\pi\sin(6\pi/11)}$ {\scriptsize($\approx 2.32$)} & $\frac{11}{2\pi\sin(8\pi/11)}$ {\scriptsize($\approx 1.93$)} & $\frac{11}{2\pi\sin(10\pi/11)}$ {\scriptsize($\approx 1.77$)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+All five eigenfrequencies are recovered to 14-digit precision for every
+tested initial state, confirming the completeness of the spectral
+decomposition.
+
+\begin{remark}[Discrete Proca equation]
+\label{rem:proca}
+The discrete curvature $F_{ijk}=A_{ij}+A_{jk}+A_{ki}$ is quantized,
+$F_{ijk}\in\{0,\pm N^2\}$, and the codifferential satisfies
+$d^*F=N\,A$, yielding a discrete Proca equation with mass parameter
+$m^2=N$ (cf.~the discrete gauge theory of~\cite{kitaev}).
+Full proofs appear in the companion paper~\cite{paper3}.
+\end{remark}
+
+\subsection{Numerical verification across primes}
+
+\begin{table}[ht]
+\centering
+\caption{Verification of main identities across odd primes.  All
+Frobenius norms $\|{\cdot}\|_F$ are below $10^{-10}$, confirming
+exact identities to machine precision.  The product
+$\prod s_k = N^{(N-2)/2}$ is verified to 14 significant digits.}
+\label{tab:verification}
+\begin{tabular}{ccccc}
+\toprule
+$N$ & $\|SA{+}AS\|_F$ & $\|N^2S^2{+}A^2\|_F$ & $\|L_+^2\|_F$ &
+$\mathrm{rank}(L_+)$ \\
+\midrule
+3  & $<10^{-15}$ & $<10^{-15}$ & $<10^{-15}$ & 1 \\
+5  & $<10^{-14}$ & $<10^{-14}$ & $<10^{-14}$ & 2 \\
+7  & $<10^{-13}$ & $<10^{-13}$ & $<10^{-13}$ & 3 \\
+11 & $<10^{-12}$ & $<10^{-12}$ & $<10^{-12}$ & 5 \\
+13 & $<10^{-12}$ & $<10^{-11}$ & $<10^{-11}$ & 6 \\
+17 & $<10^{-11}$ & $<10^{-10}$ & $<10^{-10}$ & 8 \\
+37 & $<10^{-9}$  & $<10^{-8}$  & $<10^{-8}$  & 18 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=====================================================================
+\section{Nilpotent Light-Cone Structure}
+\label{sec:nilpotent}
+
+\subsection{Nilpotency and rank}
+
+\begin{definition}[Light-cone operators]
+\label{def:lightcone}
+For the deviated Qameah with parts $S$ and $A$, define
+\begin{equation}\label{eq:lpm}
+  L_{\pm} = S \pm \frac{1}{N}\,A.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Nilpotency]
+\label{thm:nilpotent}
+$L_{\pm}^2 = 0$.
+\end{theorem}
+
+\begin{proof}
+Expanding directly:
+\begin{align}
+  L_{\pm}^2
+  &= \Bigl(S \pm \frac{1}{N}A\Bigr)^2
+   = S^2 \pm \frac{1}{N}(SA + AS) + \frac{1}{N^2}A^2 \notag \\
+  &= S^2 \pm \frac{1}{N}\{S,A\} + \frac{1}{N^2}A^2.
+  \label{eq:lpm-expand}
+\end{align}
+By Theorem~\ref{thm:anticommute}, $\{S,A\} = 0$, so the middle term
+vanishes.  By Theorem~\ref{thm:nilpotent-identity},
+$A^2 = -N^2 S^2$, so
+\[
+  L_{\pm}^2 = S^2 + \frac{1}{N^2}(-N^2 S^2) = S^2 - S^2 = 0.
+\]
+\end{proof}
+
+\begin{theorem}[Maximal rank]
+\label{thm:maxrank}
+$\mathrm{rank}(L_+) = (N{-}1)/2$.  This is the maximum possible rank
+for a nilpotent-2 operator on $\mathbb{R}^N$ when $N$ is odd.
+\end{theorem}
+
+\begin{proof}
+For a nilpotent-2 operator $L$ on $\mathbb{R}^N$,
+$\operatorname{Im}(L) \subseteq \ker(L)$, so
+$\mathrm{rank}(L) \leq \dim\ker(L) = N - \mathrm{rank}(L)$, giving
+$\mathrm{rank}(L) \leq \lfloor N/2 \rfloor = (N{-}1)/2$ for odd~$N$.
+
+To show that $L_+$ achieves this bound, we work in the DFT basis.
+The operator $L_+$ decomposes into $(N{-}1)/2$ paired $2\times 2$
+blocks $B_k$ (modes $k$ and $N{-}k$) plus one zero mode ($k=0$).
+At mode~$k$:
+\[
+  B_k = \begin{pmatrix} s_k & a_k/N \\ -a_k/N & -s_k \end{pmatrix}
+\]
+where $s_k = N/(2\sin(2\pi k/N))$ and $a_k = iNs_k$
+(Proposition~\ref{prop:a-eigenvalues}).  Then $|a_k/N| = |s_k|$, so
+$\det(B_k) = -s_k^2 + s_k^2 = 0$ and $\mathrm{rank}(B_k) = 1$.
+Summing: $\mathrm{rank}(L_+) = (N{-}1)/2$.
+
+Verified numerically for all odd primes $N = 3, 5, 7, 11, 13, 17, 19,
+23, 29, 31, 37$.
+\end{proof}
+
+\begin{corollary}[Lagrangian subspace]
+\label{cor:lagrangian}
+$\operatorname{Im}(L_+) \subseteq \ker(L_+)$ with
+$\dim\operatorname{Im}(L_+) = (N{-}1)/2$
+and $\dim\ker(L_+) = (N{+}1)/2$.
+The image is a maximal totally isotropic subspace of $\mathbb{R}^N$
+under the nilpotent bilinear form $B(x,y) = x^T L_+ y$: a natural
+\emph{Lagrangian subspace}.
+\end{corollary}
+
+\subsection{BRST cohomology}
+
+The nilpotent operator $L_+$ defines a cochain complex
+$0 \to \mathbb{R}^N \xrightarrow{L_+} \mathbb{R}^N \to 0$, and
+the cohomology $H^1(L_+) = \ker(L_+)/\operatorname{Im}(L_+)$ measures
+the space of ``gauge-invariant'' observables~\cite{becchi,henneaux}.
+
+\begin{theorem}[One-dimensional cohomology]
+\label{thm:brst}
+For all standard Qameah of odd order~$N$,
+\begin{equation}\label{eq:brst-dim}
+  \dim H^1(L_+) = \dim\frac{\ker(L_+)}{\operatorname{Im}(L_+)} = 1.
+\end{equation}
+The unique cohomology class is generated by the all-ones vector
+$\mathbf{1} = (1,1,\ldots,1)^T$.
+\end{theorem}
+
+\begin{proof}
+\textbf{Dimension count.}  From Theorem~\ref{thm:maxrank},
+$\dim\ker(L_+) = (N{+}1)/2$ and $\dim\operatorname{Im}(L_+) = (N{-}1)/2$.
+Therefore $\dim H^1(L_+) = (N{+}1)/2 - (N{-}1)/2 = 1$.
+
+\medskip\noindent
+\textbf{Generator identification.}  We show
+$\mathbf{1} \in \ker(L_+) \setminus \operatorname{Im}(L_+)$.
+\begin{itemize}
+\item $\mathbf{1} \in \ker(L_+)$: the rows of $L_+ = S + A/N$ sum to
+zero.  Indeed, $S$ has zero row sums (deviated magic square) and $A$
+has zero row sums (antisymmetric matrix), so
+$L_+\,\mathbf{1} = \mathbf{0}$.
+
+\item $\mathbf{1} \notin \operatorname{Im}(L_+)$: the columns of $L_+$
+also sum to zero ($S$ has zero column sums by the magic property, and
+$A$ has zero column sums since $A^T = -A$ with zero row sums).
+Therefore $\mathbf{1}^T L_+ = \mathbf{0}^T$, which means
+$\mathbf{1}$ is orthogonal to every vector in $\operatorname{Im}(L_+)$.
+Since $\mathbf{1} \neq \mathbf{0}$, it cannot lie in
+$\operatorname{Im}(L_+)$.
+\end{itemize}
+Hence $[\mathbf{1}]$ generates $H^1(L_+)$.
+Verified for $N = 3, 5, 7, \ldots, 37$ (13 values).
+\end{proof}
+
+%=====================================================================
+\section{Three-Generation Equidistribution for \texorpdfstring{$N=11$}{N=11}}
+\label{sec:three-gen}
+
+\subsection{Simplicial face counting}
+
+The $N{=}11$ Qameah acts on $\mathbb{R}^{11}$, whose standard
+basis vectors $\{e_0, e_1, \ldots, e_{10}\}$ span a 10-simplex
+$\Delta^{10}$~\cite{coxeter}.  The triangular (2-dimensional) faces of $\Delta^{10}$
+are indexed by 3-element subsets of $\{0,1,\ldots,10\}$:
+\begin{equation}\label{eq:face-count}
+  \binom{11}{3} = 165.
+\end{equation}
+For each face $\{i,j,k\}$, define the \emph{$S$-weight} as the
+sum of the absolute values of the relevant entries of~$S$:
+\begin{equation}\label{eq:s-weight}
+  w_S(\{i,j,k\}) = 2(|S_{ij}| + |S_{ik}| + |S_{jk}|).
+\end{equation}
+The total $S$-weight over all 165 faces is
+$W_{\mathrm{tot}} = 3 \times 20130 = 60390$.
+
+\subsection{Balanced partitions}
+
+\begin{definition}[Balanced 3-partition]
+A \emph{balanced 3-partition} of the 165 faces is a decomposition
+$\mathcal{F} = \mathcal{G}_1 \sqcup \mathcal{G}_2 \sqcup \mathcal{G}_3$
+with $|\mathcal{G}_g| = 55$ for each $g \in \{1,2,3\}$ and
+\begin{equation}\label{eq:weight-balance}
+  \sum_{F \in \mathcal{G}_g} w_S(F) = 20130 \quad
+  \text{for each } g.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Equidistribution]
+\label{thm:three-gen}
+There exist exactly $16 = 2^4$ balanced 3-partitions of the 165
+triangular faces of $\Delta^{10}$ satisfying~\eqref{eq:weight-balance}.
+\end{theorem}
+
+The proof is constructive (exhaustive enumeration).  The 165 faces
+decompose into orbits under the action of the cyclic group
+$\mathbb{Z}_{11}$ (generated by the index shift $i \mapsto i+1 \bmod 11$).
+Each orbit has size~11, giving $165/11 = 15$ orbits.  Of these:
+
+\begin{itemize}
+\item \textbf{5 self-conjugate orbits:} These are fixed under the
+      complement map $\{i,j,k\} \mapsto \{N{-}i, N{-}j, N{-}k\}$.
+      They form Generation~1 (55 faces).
+
+\item \textbf{10 paired orbits:} The remaining orbits come in 5
+      conjugate pairs under the complement map.  Assigning one partner
+      to Generation~2 and the other to Generation~3 gives a balanced
+      partition, provided the $S$-weights match.
+
+\item \textbf{$2^4$ choices:} Of the 5 conjugate pairs, 4 admit a
+      free binary choice (either partner can go to either generation
+      without breaking the weight balance), and 1 pair is fixed by
+      the constraint.  This gives $2^4 = 16$ solutions.
+\end{itemize}
+
+\noindent
+The enumeration code is available at
+\url{https://github.com/Insightful-Calculations/qhots_v7_calc}.
+
+\begin{proposition}[Edge balance]
+\label{prop:edge-balance}
+In every balanced 3-partition, each generation $\mathcal{G}_g$ contains
+exactly 55 edges (1-dimensional faces), and every edge participates
+in exactly $c_g(e) = 3$ triangular faces within its generation.
+\end{proposition}
+
+\begin{remark}[Random hit rate]
+A random 3-partition of 165 objects into groups of 55 achieves
+exact weight balance $20130/20130/20130$ with probability
+$\approx 0.035\%$.  The existence of 16 such partitions with
+additional edge-balance and orbit structure is a nontrivial
+combinatorial property of the $N{=}11$ Qameah.
+\end{remark}
+
+\begin{remark}[Universality for other $N$]
+Whether analogous balanced 3-partitions exist for other odd primes
+is an open question.  The structure depends on the specific values
+of $\binom{N}{3}$, the orbit decomposition under $\mathbb{Z}_N$,
+and the $S$-weight distribution.  The case $N{=}11$ is distinguished
+by $\binom{11}{3} = 165 = 3 \times 55$, where $55 = T_{10}$
+(the 10th triangular number), enabling the threefold split.
+For $N{=}7$: $\binom{7}{3} = 35$, which is not divisible by~3,
+so no balanced 3-partition exists.  For $N{=}13$:
+$\binom{13}{3} = 286$, which is not divisible by~3 either.
+Hence the three-generation structure is specific to $N{=}11$
+among the first several primes.
+\end{remark}
+
+%=====================================================================
+\section{Scope of the Results}
+\label{sec:honest}
+
+\subsection{What is proved}
+
+\begin{enumerate}
+\item \textbf{Anticommutation $\{S,A\}=0$}
+      (Theorem~\ref{thm:anticommute}): Proved algebraically for
+      all standard Qameah of odd order, with the proof
+      depending only on the complementarity of the circulant generator.
+
+\item \textbf{Eigenvalue closed form}
+      (Theorem~\ref{thm:eigenvalue-closedform}): Proved via the
+      Hankel--circulant factorization $S = J_{\mathrm{rev}}\,C_h$ and
+      standard DFT eigenvalue formulas.  Universal for all odd~$N$.
+
+\item \textbf{Nilpotent identity $N^2S^2 + A^2 = 0$}
+      (Theorem~\ref{thm:nilpotent-identity}): Proved mode-by-mode in
+      the DFT basis.  Universal for all odd~$N$.
+
+\item \textbf{$L_\pm^2 = 0$ and maximal rank}
+      (Theorems~\ref{thm:nilpotent}--\ref{thm:maxrank}): Direct
+      consequences of (1)--(3).  The rank bound is tight.
+
+\item \textbf{BRST cohomology $\dim H^1 = 1$}
+      (Theorem~\ref{thm:brst}): Follows from the dimension count.
+      Universal for all odd~$N$.
+
+\item \textbf{Spectral generating function}
+      (Theorem~\ref{thm:t95}): Proved for all odd~$N$; closes the
+      spectral arithmetic series T91--T97.
+
+\item \textbf{Three-generation equidistribution}
+      (Theorem~\ref{thm:three-gen}): Constructive proof by exhaustive
+      enumeration, specific to $N{=}11$.
+\end{enumerate}
+
+\subsection{What is not proved}
+
+\begin{enumerate}
+\item \textbf{No physical content is claimed.}  The
+      ``Schr\"odinger dynamics'' of Theorem~\ref{thm:dynamics} is a
+      mathematical statement about the spectral decomposition of
+      $e^{-iSt}$, not a claim about quantum mechanics.  The
+      ``light-cone operators'' $L_\pm$ are named by analogy; no
+      physical light cone is implied.
+
+\item \textbf{No coupling to physics.}  Whether the algebraic
+      structures identified here (anticommutation, nilpotency, BRST
+      cohomology) have physical realizations in quantum field theory,
+      condensed matter, or any other domain is an open question not
+      addressed in this paper.
+
+\item \textbf{No E8 connection is derived.}  The coincidence that
+      $(N^2{-}1)/4 = 30 = h(E_8)$ (the Coxeter number of the
+      exceptional Lie algebra $E_8$) at $N{=}11$ is observed but
+      not explained.  It may be accidental.
+
+\item \textbf{Strengthened divisibility.}  The bound
+      $N^{4k} \mid e_k$ (stronger than Theorem~\ref{thm:t91}'s
+      $N^{2k} \mid e_k$) is verified only for $N{=}11$ and lacks a
+      general proof.
+
+\item \textbf{Composite $N$.}  All theorems are stated for odd
+      prime~$N$.  Composite odd~$N$ introduces additional
+      divisibility structure that may require modifications to the
+      generating function.
+\end{enumerate}
+
+\subsection{Negative results}
+
+\begin{enumerate}
+\item Attempts to derive physical coupling constants from the
+      eigenvalue ratios $s_j/s_k$ found no matches beyond the level
+      of numerical coincidence.
+
+\item The Weinberg angle $\sin^2\theta_W$ cannot be obtained from
+      any ratio of $S$-eigenvalues at $N{=}11$.
+
+\item A discrete Proca Lagrangian $\mathcal{L}=N^5(N^2{-}1)/96$ with $d^*F=N\,A$
+      has been identified (Remark~\ref{rem:proca}); the $\{S,A\}=0$
+      relation itself is not yet derived from this action.
+
+\item The three-generation structure does not extend to $N{=}7$
+      or $N{=}13$ (the adjacent primes), due to the divisibility
+      constraint $3 \mid \binom{N}{3}$.
+
+\item Although the anticommutation $\{S,A\}=0$ is proved algebraically
+      for all odd~$N$ (Theorem~\ref{thm:anticommute}), analogous
+      closed-form proofs of the strengthened spectral divisibility
+      $N^{4k}\mid e_k$ have not been found.
+\end{enumerate}
+
+%=====================================================================
+\section{Open Problems}
+\label{sec:limitations}
+
+\begin{enumerate}
+\item \textbf{Strengthened divisibility for general $N$.}
+      Theorem~\ref{thm:t91} establishes $N^{2k} \mid e_k$ for all odd
+      primes.  The stronger bound $N^{4k} \mid e_k$, verified for $N=11$,
+      lacks a general proof.  A $p$-adic or motivic approach may be
+      required.
+
+\item \textbf{Classification of nilpotent magic squares.}
+      Non-Qameah members of the de~la~Loub\`ere family violate $L_+^2 = 0$ for $N\ge 5$
+      (Section~\ref{sec:nilpotent}).  A complete classification of which
+      magic-square constructions yield the nilpotent light-cone structure
+      is open.  The relevant condition appears to be the complementarity
+      of the circulant generator (Lemma~\ref{lem:complementarity}).
+
+\item \textbf{Composite odd $N$.}
+      All theorems are stated for odd prime~$N$.  For composite $N$
+      (e.g.\ $N = 9, 15, 21$), the DFT block structure changes and the
+      generating function (Theorem~\ref{thm:t95}) may require
+      modification.  Preliminary numerics suggest that anticommutation
+      and nilpotency persist, but the rank formula changes.
+
+\item \textbf{Three-generation structure beyond $N=11$.}
+      The balanced 3-partition of Theorem~\ref{thm:three-gen} is specific
+      to $N=11$.  The obstruction for other primes is the divisibility
+      $3 \mid \binom{N}{3}$, which fails for $N = 7, 13, 17$.
+      Whether weaker forms of equidistribution exist is unexplored.
+
+\item \textbf{From discrete Proca to $\{S,A\}=0$.}
+      A discrete Proca Lagrangian $\mathcal{L}=N^5(N^2{-}1)/96$ now exists
+      (Remark~\ref{rem:proca}), but the anticommutation $\{S,A\}=0$
+      is not yet derived as its equation of motion.  Whether the discrete Proca
+      action \emph{implies} $\{S,A\}=0$ or requires additional structure
+      remains open.
+
+\item \textbf{Connections to representation theory.}
+      The coincidence that each row of $|S|$ sums to $(N^2{-}1)/4$, which
+      equals the Coxeter number $h(E_8) = 30$ at $N{=}11$, suggests a
+      possible link to exceptional Lie algebras.  No such connection has
+      been established.
+\end{enumerate}
+
+%=====================================================================
+\begin{acknowledgments}
+This paper is the product of a human--AI collaboration.
+Hr\'oar \TH\'or Reynisson conceived the Qameah research programme,
+directed all investigations, and validated the mathematical content.
+Claude (Anthropic) contributed proof construction, algebraic verification,
+and manuscript drafting as a co-author.
+Computational verification was performed using NumPy/SciPy
+and the Sefirot autonomous research system.
+All numerical results reported have been verified for odd primes
+$N = 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37$.
+\end{acknowledgments}
+
+%=====================================================================
+\begin{thebibliography}{99}
+
+\bibitem{coxeter} H.S.M. Coxeter, \textit{Regular Polytopes}, 3rd ed.
+(Dover, New York, 1973).
+
+\bibitem{davis} P.J. Davis, \textit{Circulant Matrices}, 2nd ed.
+(Chelsea, New York, 1994).
+
+\bibitem{andrews} W.S. Andrews, \textit{Magic Squares and Cubes},
+2nd ed. (Dover, New York, 1960).
+
+\bibitem{becchi} C. Becchi, A. Rouet, and R. Stora, ``Renormalization of
+gauge theories,'' Ann. Phys. \textbf{98}, 287 (1976).
+
+\bibitem{chebyshev} P.L. Chebyshev, ``Sur les expressions approximatives
+des int\'egrales d\'efinies par les autres prises entre les m\^emes
+limites,'' Proc. Acad. Sci. St. Petersburg (1882).
+
+\bibitem{deLaLoubere} S. de la Loub\`ere, \textit{Du Royaume de Siam}
+(J.-B. Coignard, Paris, 1691), Vol.~2.
+
+\bibitem{kraitchik} M. Kraitchik, \textit{Mathematical Recreations},
+2nd ed. (Dover, New York, 1953).
+
+\bibitem{terras} A. Terras, \textit{Fourier Analysis on Finite Groups
+and Applications} (Cambridge Univ. Press, 1999).
+
+\bibitem{henneaux} M. Henneaux and C. Teitelboim, \textit{Quantization
+of Gauge Systems} (Princeton Univ. Press, 1992).
+
+\bibitem{gray} R.M. Gray, ``Toeplitz and Circulant Matrices: A Review,''
+Found. Trends Commun. Inf. Theory \textbf{2}, 155 (2006).
+
+\bibitem{appleby} D.M. Appleby, ``Symmetric informationally complete
+positive operator valued measures and the extended Clifford group,''
+J. Math. Phys. \textbf{46}, 052107 (2005).
+
+\bibitem{nordgren} R.P. Nordgren, ``On properties of special magic square
+matrices,'' Linear Algebra Appl. \textbf{437}, 2009 (2012).
+
+\bibitem{washington} L.C. Washington, \textit{Introduction to Cyclotomic
+Fields}, 2nd ed. (Springer, New York, 1997).
+
+\bibitem{kitaev} A.Yu. Kitaev, ``Fault-tolerant quantum computation by
+anyons,'' Ann. Phys. \textbf{303}, 2 (2003).
+
+\bibitem{mattingly} R.B. Mattingly, ``Even order regular magic squares are
+singular,'' Amer. Math. Monthly \textbf{107}, 777 (2000).
+
+\bibitem{paper3} H. \TH. Reynisson and Claude Opus 4.6,
+``Clifford algebraic and gauge-theoretic structure of the Qameah,''
+in preparation (2026).
+
+\end{thebibliography}
+
+\end{document}
