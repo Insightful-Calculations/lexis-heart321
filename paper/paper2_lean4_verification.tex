@@ -43,7 +43,7 @@
 \newtheorem{example}[theorem]{Example}
 
 \title{Machine-Verified Integer Foundations for Qameah Spectral Theory:\\
-       1,077 Lean~4 Declarations}
+       1,822 Lean~4 Declarations}
 
 \author{Hr\'{o}ar \TH\'{o}r Reynisson\textsuperscript{1} \and Claude Opus 4.6\textsuperscript{2}}
 
@@ -60,8 +60,8 @@
 \medskip
 
 \begin{abstract}
-We present a Lean~4 / Mathlib formalization library containing 1,015 theorem
-and lemma declarations, 56 definitions, spanning 66 files, with
+We present a Lean~4 / Mathlib formalization library containing 1,663 theorem
+and lemma declarations, 159 definitions, spanning 117 files, with
 zero \texttt{sorry} placeholders.  The library formally verifies the integer
 arithmetic skeleton of the QHOTS (Qameah Harmonic Oscillator Theory of
 Symmetry) framework, which derives physical constants from the topology of
@@ -94,7 +94,7 @@ are outside the scope of formal proof; the purely mathematical
 relationships---divisibility, factorizations, polynomial identities, floor
 values of transcendental expressions---are not.  This paper formalizes that
 integer skeleton in Lean~4~\cite{lean4} / Mathlib~\cite{mathlib2020},
-producing 1,077 declarations (1,015 theorems and lemmas, 56 definitions, 6 private lemmas)
+producing 1,822 declarations (1,663 theorems and lemmas, 159 definitions, 0 private lemmas)
 across the following areas:
 
 \begin{itemize}
@@ -129,8 +129,8 @@ scope exclusions are listed in Section~\ref{sec:limitations}.
 \section{Library Structure}
 \label{sec:structure}
 
-The library consists of 64 Lean~4 source files organized into two layers:
-a set of 22 \emph{named modules} covering distinct mathematical topics,
+The library consists of 117 Lean~4 source files organized into two layers:
+a set of 16 \emph{named modules} covering distinct mathematical topics,
 and 41 \emph{tier files} (Tier3 through Tier43) that accumulate
 arithmetic identities in a milestone-driven sequence.  A master import
 file (\texttt{Registry.lean}) imports all other modules.
@@ -202,20 +202,20 @@ $N=3,5,7,9,11,13$.
 
 \subsection{Registry and build}
 
-\texttt{Registry.lean} is a master import file that imports all 63 other
+\texttt{Registry.lean} is a master import file that imports all 116 other
 modules.  Building it with
 \begin{center}
 \texttt{lake build}
 \end{center}
 in Lean~4~v4.14.0 with Mathlib~v4.14.0 as the sole dependency compiles all
-1,077 declarations with zero errors and zero \texttt{sorry} placeholders.
+1,822 declarations with zero errors and zero \texttt{sorry} placeholders.
 The library compiles under \texttt{lake build} with Lean~4.14.0 and
 Mathlib~4.x; no continuous integration is currently configured.
 
 \section{Three-Hammer Proof Strategy}
 \label{sec:hammers}
 
-All 1,077 declarations are discharged by three complementary
+All 1,822 declarations are discharged by three complementary
 \emph{hammers}.
 
 \subsection{Hammer~1: Integer Arithmetic}
@@ -495,7 +495,7 @@ $\mathrm{charpoly}$ API for matrices over $\mathbb{Z}$.
 \section{Conclusion}
 \label{sec:conclusion}
 
-The library---1,077 declarations, 66 files, zero \texttt{sorry}---covers
+The library---1,822 declarations, 117 files, zero \texttt{sorry}---covers
 the integer arithmetic skeleton of the QHOTS framework using three proof
 hammers: \texttt{norm\_num}/\texttt{native\_decide} (integer arithmetic),
 \texttt{linear\_combination} ($\varphi$ algebra), and

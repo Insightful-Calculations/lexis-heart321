@@ -382,6 +382,81 @@ For $N=11$: $k^*=4$, $v_{11}(e_4)=16=2\times 8$, consistent with
 $e_4=11^{16}$.
 \end{corollary}
 
+%---------------------------------------------------------------------
+\subsection{Spectral Distribution and Characteristic Polynomial}
+\label{sec:spectral-distribution}
+
+\begin{proposition}[Arcsine--cotangent spectral density]
+\label{prop:spectral-density}
+Let $t_k = s_k/N$ be the normalized eigenvalues of~$S$,
+where $m = (N{-}1)/2$.
+The normalized counting measure on $\{t_k\}_{k=1}^{m}$ converges
+weakly, as $N\to\infty$ through odd primes, to the probability measure
+\begin{equation}\label{eq:spectral-density}
+  \rho(t)\,dt = \frac{dt}{\pi t\sqrt{4t^2-1}}, \qquad t \ge \tfrac{1}{2},
+\end{equation}
+which is the pushforward of the arcsine distribution on $(0,\pi)$ through
+the map $\theta \mapsto t = 1/(2\sin\theta)$.
+The distribution is universal (independent of $N$) and deterministic.
+\end{proposition}
+
+\begin{proof}
+From Theorem~\ref{thm:eigenvalue-closedform}, $t_k = 1/(2\sin(2\pi k/N))$.
+The angles $\theta_k = 2\pi k/N$ are equidistributed on $(0,\pi)$
+as $N\to\infty$, so the empirical measure of $\{t_k\}$ is the pushforward
+of the uniform measure $d\theta/\pi$ on $(0,\pi)$ through $t = 1/(2\sin\theta)$.
+By the change-of-variables formula,
+\[
+  \rho(t) = \frac{1}{\pi}\left|\frac{d\theta}{dt}\right|
+  = \frac{1}{\pi}\cdot\frac{1}{|d(1/(2\sin\theta))/d\theta|}
+  = \frac{1}{\pi}\cdot\frac{2\sin^2\!\theta}{|\cos\theta|}.
+\]
+Substituting $\sin\theta = 1/(2t)$ and
+$|\cos\theta| = \sqrt{1-1/(4t^2)} = \sqrt{4t^2-1}/(2t)$
+gives $\rho(t) = 1/(\pi t\sqrt{4t^2-1})$.
+\end{proof}
+
+\begin{corollary}[Inverse moment formula]
+\label{cor:inverse-moments}
+For $N > 2p$ (so that all moments converge),
+\begin{equation}\label{eq:inverse-moments}
+  \sum_{k=1}^{m} t_k^{-2p}
+  = N\cdot\frac{1}{2}\binom{2p}{p}, \qquad p = 1,2,3,\ldots
+\end{equation}
+That is, the $(-2p)$-th moment of the normalized eigenvalues equals
+$N/2$ times the central binomial coefficient $\binom{2p}{p}$.
+\end{corollary}
+
+\begin{proof}
+Since $t_k^{-1} = 2\sin(2\pi k/N)$, we have
+$t_k^{-2p} = 2^{2p}\sin^{2p}(2\pi k/N)$.
+The identity $\sum_{k=1}^{m}\sin^{2p}(2\pi k/N) = N\binom{2p}{p}/2^{2p+1}$
+(a standard trigonometric sum via the binomial theorem and
+orthogonality of characters on $\mathbb{Z}/N\mathbb{Z}$ for $N > 2p$)
+gives $\sum_{k=1}^{m} t_k^{-2p} = 2^{2p}\cdot N\binom{2p}{p}/2^{2p+1}
+= N\binom{2p}{p}/2$.
+\end{proof}
+
+\begin{remark}[Characteristic polynomial as a hypergeometric function]
+\label{rem:charpoly-hyp}
+The characteristic polynomial of~$S$ restricted to its nonzero eigenspace
+can be written as
+\begin{equation}\label{eq:charpoly-hyp}
+  p_N(x)
+  = x^N\cdot {}_2F_1\!\left(-m,\,m+1;\,\tfrac{3}{2};\,\frac{N^2}{4x^2}\right),
+\end{equation}
+where $m = (N{-}1)/2$.
+This follows from the generating function of Theorem~\ref{thm:t95}
+together with the standard connection formula between ballot-number sequences
+and Gauss hypergeometric series.
+For the unscaled eigenvalue-squares $s_j^2 = N^2/(4\sin^2(2\pi j/N))$,
+the unified formula reads
+$e_k(s_1^2,\ldots,s_m^2) = N^{2k}\binom{m+k}{2k}/(2k+1)$,
+which is equivalent to Theorem~\ref{thm:t95} since
+$e_k(\{N^2 s_j^2\}) = N^{2k}\,e_k(\{s_j^2\})$.
+The cofactors $B_{m,k} = \binom{m+k}{2k}/(2k+1)$ are ballot numbers.
+\end{remark}
+
 %=====================================================================
 \section{The \texorpdfstring{$S/A$}{S/A} Decomposition}
 \label{sec:sa-decomposition}
@@ -887,6 +962,18 @@ $\operatorname{Im}(L_+)$.
 Hence $[\mathbf{1}]$ generates $H^1(L_+)$.
 Verified for $N = 3, 5, 7, \ldots, 37$ (13 values).
 \end{proof}
+
+\begin{remark}[Quantum error-correcting codes]
+\label{rem:qec}
+The nilpotency $L_+^2 = 0$ (Theorem~\ref{thm:nilpotent})
+implies that the row space of $L_+ \bmod N$ is self-orthogonal over $\mathbb{F}_N$.
+By the CSS construction, this yields a quantum error-correcting code
+$[[N, N-4, 3]]_N$ for every prime $N \geq 5$.
+This code saturates the quantum Singleton bound and is therefore
+a quantum MDS code.
+The generator matrix is a Reed--Solomon $[N,2,N-1]_N$ code,
+with the $\mathrm{GL}(2,\mathbb{Z}_N)$ magic square entries as evaluation points.
+\end{remark}
 
 %=====================================================================
 \section{Three-Generation Equidistribution for \texorpdfstring{$N=11$}{N=11}}
